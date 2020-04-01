@@ -16,13 +16,14 @@ package object game {
       def render(state: State.Game): UIO[String]
     }
     object Service {
-      val live: ZLayer[GameCommandParser with GameView with OpponentAi with GameLogic, Nothing, GameMode] =
-        ZLayer.fromFunction { env =>
-          val opponentAiService        = env.get[OpponentAi.Service]
-          val gameCommandParserService = env.get[GameCommandParser.Service]
-          val gameLogicService         = env.get[GameLogic.Service]
-          val gameViewService          = env.get[GameView.Service]
-
+      val live: URLayer[GameCommandParser with GameView with OpponentAi with GameLogic, GameMode] =
+        ZLayer.fromServices[
+          GameCommandParser.Service,
+          GameView.Service,
+          OpponentAi.Service,
+          GameLogic.Service,
+          GameMode.Service
+        ] { (gameCommandParserService, gameViewService, opponentAiService, gameLogicService) =>
           new Service {
             override def process(input: String, state: State.Game): UIO[State] =
               if (state.result != GameResult.Ongoing) UIO.succeed(State.Menu(None, MenuFooterMessage.Empty))

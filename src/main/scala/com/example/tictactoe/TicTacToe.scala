@@ -33,7 +33,7 @@ object TicTacToe extends App {
 
   def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = program.provideLayer(prepareEnvironment).as(0)
 
-  private val prepareEnvironment: Layer[Nothing, RunLoop] = {
+  private val prepareEnvironment: ULayer[RunLoop] = {
     val parsers =
       ConfirmCommandParser.Service.live ++ GameCommandParser.Service.live ++ MenuCommandParser.Service.live
 

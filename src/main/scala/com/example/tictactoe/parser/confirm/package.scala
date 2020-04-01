@@ -11,7 +11,7 @@ package object confirm {
       def parse(input: String): IO[Unit, ConfirmCommand]
     }
     object Service {
-      val live: Layer[Nothing, ConfirmCommandParser] = ZLayer.succeed {
+      val live: ULayer[ConfirmCommandParser] = ZLayer.succeed {
         new Service {
           override def parse(input: String): IO[Unit, ConfirmCommand] =
             input match {

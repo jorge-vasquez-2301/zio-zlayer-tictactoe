@@ -14,14 +14,13 @@ package object terminal {
     object Service {
       val ansiClearScreen: String = "\u001b[H\u001b[2J"
 
-      val live: ZLayer[Console, Nothing, Terminal] = ZLayer.fromFunction { console: Console =>
+      val live: URLayer[Console, Terminal] = ZLayer.fromService { consoleService =>
         new Service {
-          override val getUserInput: UIO[String] = console.get.getStrLn.orDie
-
+          override val getUserInput: UIO[String] = consoleService.getStrLn.orDie
           override def display(frame: String): UIO[Unit] =
             for {
-              _ <- console.get.putStr(ansiClearScreen)
-              _ <- console.get.putStrLn(frame)
+              _ <- consoleService.putStr(ansiClearScreen)
+              _ <- consoleService.putStrLn(frame)
             } yield ()
         }
       }

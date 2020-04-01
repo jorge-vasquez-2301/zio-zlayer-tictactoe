@@ -14,28 +14,27 @@ package object controller {
       def render(state: State): UIO[String]
     }
     object Service {
-      val live: ZLayer[ConfirmMode with GameMode with MenuMode, Nothing, Controller] = ZLayer.fromFunction { env =>
-        val confirmModeService = env.get[ConfirmMode.Service]
-        val gameModeService    = env.get[GameMode.Service]
-        val menuModeService    = env.get[MenuMode.Service]
-        new Service {
-          override def process(input: String, state: State): IO[Unit, State] =
-            state match {
-              case s: State.Confirm => confirmModeService.process(input, s)
-              case s: State.Game    => gameModeService.process(input, s)
-              case s: State.Menu    => menuModeService.process(input, s)
-              case State.Shutdown   => ZIO.fail(())
-            }
+      val live: URLayer[ConfirmMode with GameMode with MenuMode, Controller] =
+        ZLayer.fromServices[ConfirmMode.Service, GameMode.Service, MenuMode.Service, Controller.Service] {
+          (confirmModeService, gameModeService, menuModeService) =>
+            new Service {
+              override def process(input: String, state: State): IO[Unit, State] =
+                state match {
+                  case s: State.Confirm => confirmModeService.process(input, s)
+                  case s: State.Game    => gameModeService.process(input, s)
+                  case s: State.Menu    => menuModeService.process(input, s)
+                  case State.Shutdown   => ZIO.fail(())
+                }
 
-          override def render(state: State): UIO[String] =
-            state match {
-              case s: State.Confirm => confirmModeService.render(s)
-              case s: State.Game    => gameModeService.render(s)
-              case s: State.Menu    => menuModeService.render(s)
-              case State.Shutdown   => UIO.succeed("Shutting down...")
+              override def render(state: State): UIO[String] =
+                state match {
+                  case s: State.Confirm => confirmModeService.render(s)
+                  case s: State.Game    => gameModeService.render(s)
+                  case s: State.Menu    => menuModeService.render(s)
+                  case State.Shutdown   => UIO.succeed("Shutting down...")
+                }
             }
         }
-      }
     }
 
     // accessors

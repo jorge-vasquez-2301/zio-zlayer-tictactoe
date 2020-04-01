@@ -12,7 +12,7 @@ package object menu {
       def footer(message: MenuFooterMessage): UIO[String]
     }
     object Service {
-      val live: Layer[Nothing, MenuView] = ZLayer.succeed {
+      val live: ULayer[MenuView] = ZLayer.succeed {
         new Service {
           override val header: UIO[String] =
             UIO.succeed(

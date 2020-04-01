@@ -13,7 +13,7 @@ package object game {
       def parse(input: String): IO[Unit, GameCommand]
     }
     object Service {
-      val live: Layer[Nothing, GameCommandParser] = ZLayer.succeed {
+      val live: ULayer[GameCommandParser] = ZLayer.succeed {
         new Service {
           override def parse(input: String): IO[Unit, GameCommand] =
             ZIO.fromOption(command.parse(input).done.option)

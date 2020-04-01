@@ -13,7 +13,7 @@ package object confirm {
       def footer(message: ConfirmFooterMessage): UIO[String]
     }
     object Service {
-      val live: Layer[Nothing, Has[Service]] = ZLayer.succeed {
+      val live: ULayer[ConfirmView] = ZLayer.succeed {
         new Service {
           override def header(action: ConfirmAction): UIO[String] = UIO.succeed(action).map {
             case ConfirmAction.NewGame =>

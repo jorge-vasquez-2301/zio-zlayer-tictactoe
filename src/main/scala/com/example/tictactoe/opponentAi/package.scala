@@ -12,13 +12,13 @@ package object opponentAi {
       def randomMove(board: Map[Field, Piece]): IO[Unit, Field]
     }
     object Service {
-      val live: ZLayer[Random, Nothing, OpponentAi] = ZLayer.fromFunction { random: Random =>
+      val live: URLayer[Random, OpponentAi] = ZLayer.fromService { randomService =>
         new Service {
           override def randomMove(board: Map[Field, Piece]): IO[Unit, Field] = {
             val unoccupied = Field.all.toSet -- board.keySet
             unoccupied.size match {
               case 0 => IO.fail(())
-              case n => random.get.nextInt(n).map(unoccupied.toList(_))
+              case n => randomService.nextInt(n).map(unoccupied.toList(_))
             }
           }
         }

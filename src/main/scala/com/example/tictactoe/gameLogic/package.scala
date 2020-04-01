@@ -13,7 +13,7 @@ package object gameLogic {
       def nextTurn(currentTurn: Piece): UIO[Piece]
     }
     object Service {
-      val live: Layer[Nothing, GameLogic] = ZLayer.succeed {
+      val live: ULayer[GameLogic] = ZLayer.succeed {
         new Service {
           override def putPiece(board: Map[Field, Piece], field: Field, piece: Piece): IO[Unit, Map[Field, Piece]] =
             board.get(field) match {

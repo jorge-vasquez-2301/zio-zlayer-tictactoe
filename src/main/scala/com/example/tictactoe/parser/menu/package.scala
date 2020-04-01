@@ -10,7 +10,7 @@ package object menu {
       def parse(input: String): IO[Unit, MenuCommand]
     }
     object Service {
-      val live: Layer[Nothing, MenuCommandParser] = ZLayer.succeed {
+      val live: ULayer[MenuCommandParser] = ZLayer.succeed {
         new Service {
           override def parse(input: String): IO[Unit, MenuCommand] =
             input match {

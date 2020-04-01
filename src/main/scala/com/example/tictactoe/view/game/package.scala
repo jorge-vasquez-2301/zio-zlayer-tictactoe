@@ -13,7 +13,7 @@ package object game {
       def footer(message: GameFooterMessage): UIO[String]
     }
     object Service {
-      val live: Layer[Nothing, GameView] = ZLayer.succeed {
+      val live: ULayer[GameView] = ZLayer.succeed {
         new Service {
           override def header(result: GameResult, turn: Piece, player: Player): UIO[String] =
             UIO.succeed(result) map {

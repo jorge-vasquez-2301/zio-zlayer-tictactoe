@@ -15,12 +15,18 @@ package object opponentAi {
       val live: URLayer[Random, OpponentAi] = ZLayer.fromService { randomService =>
         new Service {
           override def randomMove(board: Map[Field, Piece]): IO[Unit, Field] = {
-            val unoccupied = Field.all.toSet -- board.keySet
+            val unoccupied = (Field.all.toSet -- board.keySet).toList.sortBy(_.value)
             unoccupied.size match {
               case 0 => IO.fail(())
-              case n => randomService.nextInt(n).map(unoccupied.toList(_))
+              case n => randomService.nextInt(n).map(unoccupied(_))
             }
           }
+        }
+      }
+
+      val dummy: ULayer[OpponentAi] = ZLayer.succeed {
+        new Service {
+          override def randomMove(board: Map[Field, Piece]): IO[Unit, Field] = IO.fail(())
         }
       }
     }

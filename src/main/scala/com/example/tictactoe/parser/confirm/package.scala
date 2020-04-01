@@ -21,6 +21,12 @@ package object confirm {
             }
         }
       }
+
+      val dummy: ULayer[ConfirmCommandParser] = ZLayer.succeed {
+        new Service {
+          override def parse(input: String): IO[Unit, ConfirmCommand] = IO.fail(())
+        }
+      }
     }
 
     // accessors

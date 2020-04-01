@@ -34,6 +34,12 @@ package object game {
             }
         }
       }
+
+      val dummy: ULayer[GameCommandParser] = ZLayer.succeed {
+        new Service {
+          override def parse(input: String): IO[Unit, GameCommand] = IO.fail(())
+        }
+      }
     }
 
     // accessors

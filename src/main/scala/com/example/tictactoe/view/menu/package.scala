@@ -41,6 +41,14 @@ package object menu {
             }
         }
       }
+
+      val dummy: ULayer[MenuView] = ZLayer.succeed {
+        new Service {
+          override val header: UIO[String]                             = UIO.succeed("")
+          override def content(isSuspended: Boolean): UIO[String]      = UIO.succeed("")
+          override def footer(message: MenuFooterMessage): UIO[String] = UIO.succeed("")
+        }
+      }
     }
 
     // accessors

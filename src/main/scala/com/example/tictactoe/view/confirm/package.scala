@@ -39,6 +39,14 @@ package object confirm {
             }
         }
       }
+
+      val dummy: ULayer[ConfirmView] = ZLayer.succeed {
+        new Service {
+          override def header(action: ConfirmAction): UIO[String]         = UIO.succeed("")
+          override val content: UIO[String]                               = UIO.succeed("")
+          override def footer(message: ConfirmFooterMessage): UIO[String] = UIO.succeed("")
+        }
+      }
     }
 
     // accessors

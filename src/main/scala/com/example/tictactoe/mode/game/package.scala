@@ -67,6 +67,13 @@ package object game {
             }
           }
         }
+
+      val dummy: ULayer[GameMode] = ZLayer.succeed {
+        new Service {
+          override def process(input: String, state: State.Game): UIO[State] = UIO.succeed(state)
+          override def render(state: State.Game): UIO[String]                = UIO.succeed("")
+        }
+      }
     }
 
     // accessors

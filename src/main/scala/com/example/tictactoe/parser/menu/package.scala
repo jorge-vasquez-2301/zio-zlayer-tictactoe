@@ -21,6 +21,12 @@ package object menu {
             }
         }
       }
+
+      val dummy: ULayer[MenuCommandParser] = ZLayer.succeed {
+        new Service {
+          override def parse(input: String): IO[Unit, MenuCommand] = IO.fail(())
+        }
+      }
     }
 
     // accessors

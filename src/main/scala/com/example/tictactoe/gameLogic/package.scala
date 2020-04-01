@@ -54,6 +54,16 @@ package object gameLogic {
           }
         }
       }
+
+      val dummy: ULayer[GameLogic] = ZLayer.succeed {
+        new Service {
+          override def putPiece(board: Map[Field, Piece], field: Field, piece: Piece): IO[Unit, Map[Field, Piece]] =
+            IO.succeed(Map.empty)
+
+          override def gameResult(board: Map[Field, Piece]): UIO[GameResult] = UIO.succeed(GameResult.Draw)
+          override def nextTurn(currentTurn: Piece): UIO[Piece]              = UIO.succeed(Piece.Cross)
+        }
+      }
     }
 
     def putPiece(board: Map[Field, Piece], field: Field, piece: Piece): ZIO[GameLogic, Unit, Map[Field, Piece]] =

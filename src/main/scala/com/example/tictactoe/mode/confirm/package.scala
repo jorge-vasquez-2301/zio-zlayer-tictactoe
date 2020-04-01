@@ -35,6 +35,13 @@ package object confirm {
                 } yield List(header, content, footer).mkString("\n\n")
             }
         }
+
+      val dummy: ULayer[ConfirmMode] = ZLayer.succeed {
+        new Service {
+          override def process(input: String, state: State.Confirm): UIO[State] = UIO.succeed(state)
+          override def render(state: State.Confirm): UIO[String]                = UIO.succeed("")
+        }
+      }
     }
 
     // accessors

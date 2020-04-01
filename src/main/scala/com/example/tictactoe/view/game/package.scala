@@ -59,6 +59,14 @@ package object game {
           }
         }
       }
+
+      val dummy: ULayer[GameView] = ZLayer.succeed {
+        new Service {
+          override def header(result: GameResult, turn: Piece, player: Player): UIO[String] = UIO.succeed("")
+          override def content(board: Map[Field, Piece], result: GameResult): UIO[String]   = UIO.succeed("")
+          override def footer(message: GameFooterMessage): UIO[String]                      = UIO.succeed("")
+        }
+      }
     }
 
     // accessors

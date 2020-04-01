@@ -58,6 +58,13 @@ package object menu {
                 } yield List(header, content, footer).mkString("\n\n")
             }
         }
+
+      val dummy: ULayer[MenuMode] = ZLayer.succeed {
+        new Service {
+          override def process(input: String, state: State.Menu): UIO[State] = UIO.succeed(state)
+          override def render(state: State.Menu): UIO[String]                = UIO.succeed("")
+        }
+      }
     }
 
     // accessors

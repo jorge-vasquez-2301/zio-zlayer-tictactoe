@@ -33,28 +33,25 @@ object TicTacToe extends App {
 
   def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = program.provideLayer(prepareEnvironment).as(0)
 
-  private val prepareEnvironment: ULayer[RunLoop] = {
-    val opponentAiNoDeps: ULayer[OpponentAi] = Random.live >>> OpponentAi.Service.live
-
+  private val prepareEnvironment: URLayer[Console with Random, RunLoop] = {
     val confirmModeDeps: ULayer[ConfirmCommandParser with ConfirmView] =
       ConfirmCommandParser.Service.live ++ ConfirmView.Service.live
     val menuModeDeps: ULayer[MenuCommandParser with MenuView] =
       MenuCommandParser.Service.live ++ MenuView.Service.live
-    val gameModeDeps: ULayer[GameCommandParser with GameView with GameLogic with OpponentAi] =
-      GameCommandParser.Service.live ++ GameView.Service.live ++ GameLogic.Service.live ++ opponentAiNoDeps
+    val gameModeDeps: URLayer[Random, GameCommandParser with GameView with GameLogic with OpponentAi] =
+      GameCommandParser.Service.live ++ GameView.Service.live ++ GameLogic.Service.live ++ OpponentAi.Service.live
 
-    val confirmModeNoDeps: ULayer[ConfirmMode] = confirmModeDeps >>> ConfirmMode.Service.live
-    val menuModeNoDeps: ULayer[MenuMode]       = menuModeDeps >>> MenuMode.Service.live
-    val gameModeNoDeps: ULayer[GameMode]       = gameModeDeps >>> GameMode.Service.live
+    val confirmModeNoDeps: ULayer[ConfirmMode]       = confirmModeDeps >>> ConfirmMode.Service.live
+    val menuModeNoDeps: ULayer[MenuMode]             = menuModeDeps >>> MenuMode.Service.live
+    val gameModeRandomDep: URLayer[Random, GameMode] = gameModeDeps >>> GameMode.Service.live
 
-    val controllerDeps: ULayer[ConfirmMode with GameMode with MenuMode] =
-      confirmModeNoDeps ++ gameModeNoDeps ++ menuModeNoDeps
+    val controllerDeps: URLayer[Random, ConfirmMode with GameMode with MenuMode] =
+      confirmModeNoDeps ++ gameModeRandomDep ++ menuModeNoDeps
 
-    val controllerNoDeps: ULayer[Controller] = controllerDeps >>> Controller.Service.live
-    val terminalNoDeps: ULayer[Terminal]     = Console.live >>> Terminal.Service.live
+    val controllerRandomDep: URLayer[Random, Controller] = controllerDeps >>> Controller.Service.live
 
-    val runLoopNoDeps = (controllerNoDeps ++ terminalNoDeps) >>> RunLoop.Service.live
+    val runLoopConsoleRandomDep = (controllerRandomDep ++ Terminal.Service.live) >>> RunLoop.Service.live
 
-    runLoopNoDeps
+    runLoopConsoleRandomDep
   }
 }

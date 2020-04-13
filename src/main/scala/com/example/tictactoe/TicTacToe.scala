@@ -34,16 +34,27 @@ object TicTacToe extends App {
   def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = program.provideLayer(prepareEnvironment).as(0)
 
   private val prepareEnvironment: ULayer[RunLoop] = {
-    val parsers =
-      ConfirmCommandParser.Service.live ++ GameCommandParser.Service.live ++ MenuCommandParser.Service.live
+    val opponentAiNoDeps: ULayer[OpponentAi] = Random.live >>> OpponentAi.Service.live
 
-    val views = ConfirmView.Service.live ++ GameView.Service.live ++ MenuView.Service.live
+    val confirmModeDeps: ULayer[ConfirmCommandParser with ConfirmView] =
+      ConfirmCommandParser.Service.live ++ ConfirmView.Service.live
+    val menuModeDeps: ULayer[MenuCommandParser with MenuView] =
+      MenuCommandParser.Service.live ++ MenuView.Service.live
+    val gameModeDeps: ULayer[GameCommandParser with GameView with GameLogic with OpponentAi] =
+      GameCommandParser.Service.live ++ GameView.Service.live ++ GameLogic.Service.live ++ opponentAiNoDeps
 
-    val gameModes = ConfirmMode.Service.live ++ GameMode.Service.live ++ MenuMode.Service.live
+    val confirmModeNoDeps: ULayer[ConfirmMode] = confirmModeDeps >>> ConfirmMode.Service.live
+    val menuModeNoDeps: ULayer[MenuMode]       = menuModeDeps >>> MenuMode.Service.live
+    val gameModeNoDeps: ULayer[GameMode]       = gameModeDeps >>> GameMode.Service.live
 
-    (parsers ++ views ++ (Random.live >>> OpponentAi.Service.live) ++ GameLogic.Service.live) >>>
-      (gameModes ++ Console.live) >>>
-      (Controller.Service.live ++ Terminal.Service.live) >>>
-      RunLoop.Service.live
+    val controllerDeps: ULayer[ConfirmMode with GameMode with MenuMode] =
+      confirmModeNoDeps ++ gameModeNoDeps ++ menuModeNoDeps
+
+    val controllerNoDeps: ULayer[Controller] = controllerDeps >>> Controller.Service.live
+    val terminalNoDeps: ULayer[Terminal]     = Console.live >>> Terminal.Service.live
+
+    val runLoopNoDeps = (controllerNoDeps ++ terminalNoDeps) >>> RunLoop.Service.live
+
+    runLoopNoDeps
   }
 }

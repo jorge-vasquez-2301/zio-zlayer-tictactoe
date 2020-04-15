@@ -1,7 +1,7 @@
 package com.example.tictactoe.parser.game
 
 import com.example.tictactoe.domain.Board.Field
-import com.example.tictactoe.domain.GameCommand
+import com.example.tictactoe.domain.{ GameCommand, ParseError }
 import zio._
 import zio.test.Assertion._
 import zio.test._
@@ -26,11 +26,11 @@ object GameCommandParserSpec extends DefaultRunnableSpec {
         testM("invalid command returns error") {
           checkM(invalidCommandsGen) { input =>
             val result = GameCommandParser.parse(input).either
-            assertM(result)(isLeft(isUnit))
+            assertM(result)(isLeft(equalTo(ParseError)))
           }
         }
       )
-    ).provideCustomLayer(GameCommandParser.Service.live)
+    ).provideCustomLayer(GameCommandParser.live)
 
   private val validCommands      = List(1 to 9)
   private val invalidCommandsGen = Gen.anyString.filter(!validCommands.contains(_))

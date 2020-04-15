@@ -108,7 +108,8 @@ object mocks {
     private val envBuilder: URLayer[Has[Proxy], ConfirmCommandParser] =
       ZLayer.fromService(invoke =>
         new ConfirmCommandParser.Service {
-          override def parse(input: String): IO[Unit, ConfirmCommand] = invoke(ConfirmCommandParserMock.parse, input)
+          override def parse(input: String): IO[AppError, ConfirmCommand] =
+            invoke(ConfirmCommandParserMock.parse, input)
         }
       )
   }
@@ -124,7 +125,7 @@ object mocks {
     private val envBuilder: URLayer[Has[Proxy], GameCommandParser] =
       ZLayer.fromService(invoke =>
         new GameCommandParser.Service {
-          override def parse(input: String): IO[Unit, GameCommand] = invoke(GameCommandParserMock.parse, input)
+          override def parse(input: String): IO[AppError, GameCommand] = invoke(GameCommandParserMock.parse, input)
         }
       )
   }
@@ -140,7 +141,7 @@ object mocks {
     private val envBuilder: URLayer[Has[Proxy], MenuCommandParser] =
       ZLayer.fromService(invoke =>
         new MenuCommandParser.Service {
-          override def parse(input: String): IO[Unit, MenuCommand] = invoke(MenuCommandParserMock.parse, input)
+          override def parse(input: String): IO[AppError, MenuCommand] = invoke(MenuCommandParserMock.parse, input)
         }
       )
   }
@@ -223,7 +224,7 @@ object mocks {
     private val envBuilder: URLayer[Has[Proxy], GameLogic] =
       ZLayer.fromService(invoke =>
         new GameLogic.Service {
-          override def putPiece(board: Map[Field, Piece], field: Field, piece: Piece): IO[Unit, Map[Field, Piece]] =
+          override def putPiece(board: Map[Field, Piece], field: Field, piece: Piece): IO[AppError, Map[Field, Piece]] =
             invoke(GameLogicMock.putPiece, board, field, piece)
 
           override def gameResult(board: Map[Field, Piece]): UIO[GameResult] = invoke(GameLogicMock.gameResult, board)
@@ -244,7 +245,8 @@ object mocks {
     private val envBuilder: URLayer[Has[Proxy], OpponentAi] =
       ZLayer.fromService(invoke =>
         new OpponentAi.Service {
-          override def randomMove(board: Map[Field, Piece]): IO[Unit, Field] = invoke(OpponentAiMock.randomMove, board)
+          override def randomMove(board: Map[Field, Piece]): IO[AppError, Field] =
+            invoke(OpponentAiMock.randomMove, board)
         }
       )
   }

@@ -1,7 +1,7 @@
 package com.example.tictactoe.opponentAi
 
 import com.example.tictactoe.domain.Board.Field
-import com.example.tictactoe.domain.Piece
+import com.example.tictactoe.domain.{ FullBoardError, Piece }
 import zio._
 import zio.random._
 import zio.test._
@@ -32,13 +32,13 @@ object OpponentAiSpec extends DefaultRunnableSpec {
   def spec = suite("OpponentAi")(
     testM("randomMove chooses a random, unoccupied field") {
       val randomMock: ULayer[Random] = MockRandom.NextInt._0(equalTo(5)) returns value(1)
-      val env: ULayer[OpponentAi]    = randomMock >>> OpponentAi.Service.live
+      val env: ULayer[OpponentAi]    = randomMock >>> OpponentAi.live
       val result                     = OpponentAi.randomMove(board).either.provideLayer(env)
       assertM(result)(isRight(equalTo(Field.NorthEast)))
     },
     testM("randomMove fails when board is fully occupied") {
-      val result = OpponentAi.randomMove(fullBoard).either.provideCustomLayer(OpponentAi.Service.live)
-      assertM(result)(isLeft(isUnit))
+      val result = OpponentAi.randomMove(fullBoard).either.provideCustomLayer(OpponentAi.live)
+      assertM(result)(isLeft(equalTo(FullBoardError)))
     }
   )
 }

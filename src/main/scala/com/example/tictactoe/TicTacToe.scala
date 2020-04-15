@@ -35,22 +35,22 @@ object TicTacToe extends App {
 
   private val prepareEnvironment: URLayer[Console with Random, RunLoop] = {
     val confirmModeDeps: ULayer[ConfirmCommandParser with ConfirmView] =
-      ConfirmCommandParser.Service.live ++ ConfirmView.Service.live
+      ConfirmCommandParser.live ++ ConfirmView.live
     val menuModeDeps: ULayer[MenuCommandParser with MenuView] =
-      MenuCommandParser.Service.live ++ MenuView.Service.live
+      MenuCommandParser.live ++ MenuView.live
     val gameModeDeps: URLayer[Random, GameCommandParser with GameView with GameLogic with OpponentAi] =
-      GameCommandParser.Service.live ++ GameView.Service.live ++ GameLogic.Service.live ++ OpponentAi.Service.live
+      GameCommandParser.live ++ GameView.live ++ GameLogic.live ++ OpponentAi.live
 
-    val confirmModeNoDeps: ULayer[ConfirmMode]       = confirmModeDeps >>> ConfirmMode.Service.live
-    val menuModeNoDeps: ULayer[MenuMode]             = menuModeDeps >>> MenuMode.Service.live
-    val gameModeRandomDep: URLayer[Random, GameMode] = gameModeDeps >>> GameMode.Service.live
+    val confirmModeNoDeps: ULayer[ConfirmMode]       = confirmModeDeps >>> ConfirmMode.live
+    val menuModeNoDeps: ULayer[MenuMode]             = menuModeDeps >>> MenuMode.live
+    val gameModeRandomDep: URLayer[Random, GameMode] = gameModeDeps >>> GameMode.live
 
     val controllerDeps: URLayer[Random, ConfirmMode with GameMode with MenuMode] =
       confirmModeNoDeps ++ gameModeRandomDep ++ menuModeNoDeps
 
-    val controllerRandomDep: URLayer[Random, Controller] = controllerDeps >>> Controller.Service.live
+    val controllerRandomDep: URLayer[Random, Controller] = controllerDeps >>> Controller.live
 
-    val runLoopConsoleRandomDep = (controllerRandomDep ++ Terminal.Service.live) >>> RunLoop.Service.live
+    val runLoopConsoleRandomDep = (controllerRandomDep ++ Terminal.live) >>> RunLoop.live
 
     runLoopConsoleRandomDep
   }

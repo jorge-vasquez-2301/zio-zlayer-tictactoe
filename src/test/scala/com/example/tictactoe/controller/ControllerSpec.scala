@@ -12,7 +12,7 @@ import zio.test.mock.Expectation._
 
 object ControllerSpec extends DefaultRunnableSpec {
   def spec = suite("Controller")(
-    suite("to process <user input>")(
+    suite("to process user input")(
       testM("State.Confirm delegates to ConfirmMode") {
         val app    = Controller.process(userInput, confirmState)
         val result = app.either.provideLayer(env)
@@ -31,7 +31,7 @@ object ControllerSpec extends DefaultRunnableSpec {
       testM("State.Shutdown fails with Unit") {
         val app    = Controller.process(userInput, shutdownState)
         val result = app.either.provideLayer(dummyEnv)
-        assertM(result)(isLeft(isUnit))
+        assertM(result)(isLeft(equalTo(IllegalStateError)))
       }
     ),
     suite("to render")(
@@ -84,8 +84,8 @@ object ControllerSpec extends DefaultRunnableSpec {
       (MenuModeMock.process(equalTo((userInput, menuState))) returns value(confirmState)) ||
       (ConfirmModeMock.render(equalTo(confirmState)) returns value(renderedFrame)) ||
       (GameModeMock.render(equalTo(gameState)) returns value(renderedFrame)) ||
-      (MenuModeMock.render(equalTo(menuState)) returns value(renderedFrame))) >>> Controller.Service.live
+      (MenuModeMock.render(equalTo(menuState)) returns value(renderedFrame))) >>> Controller.live
 
   private val dummyEnv: ULayer[Controller] =
-    (ConfirmMode.Service.dummy ++ GameMode.Service.dummy ++ MenuMode.Service.dummy) >>> Controller.Service.live
+    (ConfirmMode.dummy ++ GameMode.dummy ++ MenuMode.dummy) >>> Controller.live
 }

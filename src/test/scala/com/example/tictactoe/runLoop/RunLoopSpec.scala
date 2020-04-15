@@ -20,7 +20,7 @@ object RunLoopSpec extends DefaultRunnableSpec {
           (TerminalMock.display(equalTo(renderedFrame)) returns unit) ++
             (TerminalMock.getUserInput returns value(userInput))
 
-        val env: ULayer[RunLoop] = (controllerMock ++ terminalMock) >>> RunLoop.Service.live
+        val env: ULayer[RunLoop] = (controllerMock ++ terminalMock) >>> RunLoop.live
         val result               = RunLoop.step(currentState).either.provideLayer(env)
         assertM(result)(isRight(equalTo(nextState)))
       }

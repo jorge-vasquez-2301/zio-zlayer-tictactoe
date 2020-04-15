@@ -101,13 +101,13 @@ object MenuModeSpec extends DefaultRunnableSpec {
   ): UIO[TestResult] = {
     val menuCommandParserMock: ULayer[MenuCommandParser] =
       MenuCommandParserMock.parse(equalTo(input)) returns value(command)
-    val env: ULayer[MenuMode] = (menuCommandParserMock ++ MenuView.Service.dummy) >>> MenuMode.Service.live
+    val env: ULayer[MenuMode] = (menuCommandParserMock ++ MenuView.dummy) >>> MenuMode.live
     val result                = MenuMode.process(input, state).provideLayer(env)
     assertM(result)(equalTo(updatedState))
   }
 
   private def checkRender(state: State.Menu, menuViewMock: ULayer[MenuView]): UIO[TestResult] = {
-    val env: ULayer[MenuMode] = (MenuCommandParser.Service.dummy ++ menuViewMock) >>> MenuMode.Service.live
+    val env: ULayer[MenuMode] = (MenuCommandParser.dummy ++ menuViewMock) >>> MenuMode.live
 
     val result = MenuMode.render(state).provideLayer(env)
     assertM(result)(equalTo(renderedFrame))

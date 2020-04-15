@@ -19,7 +19,7 @@ object GameModeSpec extends DefaultRunnableSpec {
         val gameCommandParserMock: ULayer[GameCommandParser] =
           GameCommandParserMock.parse(equalTo("menu")) returns value(GameCommand.Menu)
         val env: ULayer[GameMode] =
-          (gameCommandParserMock ++ GameView.Service.dummy ++ OpponentAi.Service.dummy ++ GameLogic.Service.dummy) >>> GameMode.Service.live
+          (gameCommandParserMock ++ GameView.dummy ++ OpponentAi.dummy ++ GameLogic.dummy) >>> GameMode.live
 
         val result = GameMode.process("menu", gameState).provideLayer(env)
         assertM(result)(equalTo(suspendedMenuState))
@@ -31,7 +31,7 @@ object GameModeSpec extends DefaultRunnableSpec {
           val gameLogicMock: ULayer[GameLogic] =
             GameLogicMock.putPiece(equalTo((gameState.board, Field.North, Piece.Cross))) returns failure(())
           val env: ULayer[GameMode] =
-            (gameCommandParserMock ++ GameView.Service.dummy ++ OpponentAi.Service.dummy ++ gameLogicMock) >>> GameMode.Service.live
+            (gameCommandParserMock ++ GameView.dummy ++ OpponentAi.dummy ++ gameLogicMock) >>> GameMode.live
 
           val result = GameMode.process("put 2", gameState).provideLayer(env)
           assertM(result)(equalTo(fieldOccupiedState))
@@ -46,7 +46,7 @@ object GameModeSpec extends DefaultRunnableSpec {
               (GameLogicMock.gameResult(equalTo(pieceAddedEastState.board)) returns value(GameResult.Ongoing)) ++
               (GameLogicMock.nextTurn(equalTo(Piece.Cross)) returns value(Piece.Nought))
           val env: ULayer[GameMode] =
-            (gameCommandParserMock ++ GameView.Service.dummy ++ OpponentAi.Service.dummy ++ gameLogicMock) >>> GameMode.Service.live
+            (gameCommandParserMock ++ GameView.dummy ++ OpponentAi.dummy ++ gameLogicMock) >>> GameMode.live
 
           val result = GameMode.process("put 6", gameState).provideLayer(env)
           assertM(result)(equalTo(pieceAddedEastState))
@@ -55,7 +55,7 @@ object GameModeSpec extends DefaultRunnableSpec {
           val gameCommandParserMock: ULayer[GameCommandParser] =
             GameCommandParserMock.parse(equalTo("foo")) returns failure(())
           val env: ULayer[GameMode] =
-            (gameCommandParserMock ++ GameView.Service.dummy ++ OpponentAi.Service.dummy ++ GameLogic.Service.dummy) >>> GameMode.Service.live
+            (gameCommandParserMock ++ GameView.dummy ++ OpponentAi.dummy ++ GameLogic.dummy) >>> GameMode.live
 
           val result = GameMode.process("foo", gameState).provideLayer(env)
           assertM(result)(equalTo(invalidCommandState))

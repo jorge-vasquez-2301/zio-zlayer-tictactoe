@@ -11,18 +11,16 @@ package object terminal {
       val getUserInput: UIO[String]
       def display(frame: String): UIO[Unit]
     }
-    object Service {
-      val ansiClearScreen: String = "\u001b[H\u001b[2J"
+    val ansiClearScreen: String = "\u001b[H\u001b[2J"
 
-      val live: URLayer[Console, Terminal] = ZLayer.fromService { consoleService =>
-        new Service {
-          override val getUserInput: UIO[String] = consoleService.getStrLn.orDie
-          override def display(frame: String): UIO[Unit] =
-            for {
-              _ <- consoleService.putStr(ansiClearScreen)
-              _ <- consoleService.putStrLn(frame)
-            } yield ()
-        }
+    val live: URLayer[Console, Terminal] = ZLayer.fromService { consoleService =>
+      new Service {
+        override val getUserInput: UIO[String] = consoleService.getStrLn.orDie
+        override def display(frame: String): UIO[Unit] =
+          for {
+            _ <- consoleService.putStr(ansiClearScreen)
+            _ <- consoleService.putStrLn(frame)
+          } yield ()
       }
     }
 

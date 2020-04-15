@@ -11,7 +11,9 @@ object State {
     declined: State,
     footerMessage: ConfirmFooterMessage
   ) extends State
+
   final case class Menu(game: Option[Game], footerMessage: MenuFooterMessage) extends State
+
   final case class Game(
     board: Map[Field, Piece],
     cross: Player,
@@ -20,6 +22,7 @@ object State {
     result: GameResult,
     footerMessage: GameFooterMessage
   ) extends State
+
   case object Shutdown extends State
 
   val initial: State = Menu(None, MenuFooterMessage.Empty)

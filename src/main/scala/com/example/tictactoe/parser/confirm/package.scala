@@ -1,6 +1,6 @@
 package com.example.tictactoe.parser
 
-import com.example.tictactoe.domain.ConfirmCommand
+import com.example.tictactoe.domain.{ AppError, ConfirmCommand, ParseError }
 import zio._
 
 package object confirm {
@@ -8,28 +8,26 @@ package object confirm {
 
   object ConfirmCommandParser {
     trait Service {
-      def parse(input: String): IO[Unit, ConfirmCommand]
+      def parse(input: String): IO[AppError, ConfirmCommand]
     }
-    object Service {
-      val live: ULayer[ConfirmCommandParser] = ZLayer.succeed {
-        new Service {
-          override def parse(input: String): IO[Unit, ConfirmCommand] =
-            input match {
-              case "yes" => ZIO.succeed(ConfirmCommand.Yes)
-              case "no"  => ZIO.succeed(ConfirmCommand.No)
-              case _     => ZIO.fail(())
-            }
-        }
+    val live: ULayer[ConfirmCommandParser] = ZLayer.succeed {
+      new Service {
+        override def parse(input: String): IO[AppError, ConfirmCommand] =
+          input match {
+            case "yes" => ZIO.succeed(ConfirmCommand.Yes)
+            case "no"  => ZIO.succeed(ConfirmCommand.No)
+            case _     => ZIO.fail(ParseError)
+          }
       }
+    }
 
-      val dummy: ULayer[ConfirmCommandParser] = ZLayer.succeed {
-        new Service {
-          override def parse(input: String): IO[Unit, ConfirmCommand] = IO.fail(())
-        }
+    val dummy: ULayer[ConfirmCommandParser] = ZLayer.succeed {
+      new Service {
+        override def parse(input: String): IO[AppError, ConfirmCommand] = IO.fail(ParseError)
       }
     }
 
     // accessors
-    def parse(input: String): ZIO[ConfirmCommandParser, Unit, ConfirmCommand] = ZIO.accessM(_.get.parse(input))
+    def parse(input: String): ZIO[ConfirmCommandParser, AppError, ConfirmCommand] = ZIO.accessM(_.get.parse(input))
   }
 }

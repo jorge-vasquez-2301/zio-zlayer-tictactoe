@@ -2,7 +2,7 @@ package com.example.tictactoe.parser.menu
 
 import zio.test._
 import zio.test.Assertion._
-import com.example.tictactoe.domain.MenuCommand
+import com.example.tictactoe.domain.{ MenuCommand, ParseError }
 
 object MenuCommandParserSpec extends DefaultRunnableSpec {
   def spec = suite("MenuCommandParser")(
@@ -22,10 +22,10 @@ object MenuCommandParserSpec extends DefaultRunnableSpec {
       testM("any other input returns Invalid command") {
         checkM(invalidCommandsGen) { input =>
           val result = MenuCommandParser.parse(input).either
-          assertM(result)(isLeft(isUnit))
+          assertM(result)(isLeft(equalTo(ParseError)))
         }
       }
-    ).provideCustomLayer(MenuCommandParser.Service.live)
+    ).provideCustomLayer(MenuCommandParser.live)
   )
 
   private val validCommands      = List("new game", "resume", "quit")

@@ -12,7 +12,7 @@ object TerminalSpec extends DefaultRunnableSpec {
     testM("getUserInput delegates to Console") {
       checkM(Gen.anyString) { input =>
         val consoleMock: ULayer[Console] = MockConsole.GetStrLn returns value(input)
-        val env: ULayer[Terminal]        = consoleMock >>> Terminal.Service.live
+        val env: ULayer[Terminal]        = consoleMock >>> Terminal.live
         val result                       = Terminal.getUserInput.provideLayer(env)
         assertM(result)(equalTo(input))
       }
@@ -20,9 +20,9 @@ object TerminalSpec extends DefaultRunnableSpec {
     testM("display delegates to Console") {
       checkM(Gen.anyString) { frame =>
         val consoleMock: ULayer[Console] =
-          (MockConsole.PutStr(equalTo(Terminal.Service.ansiClearScreen)) returns unit) ++
+          (MockConsole.PutStr(equalTo(Terminal.ansiClearScreen)) returns unit) ++
             (MockConsole.PutStrLn(equalTo(frame)) returns unit)
-        val env: ULayer[Terminal] = consoleMock >>> Terminal.Service.live
+        val env: ULayer[Terminal] = consoleMock >>> Terminal.live
         val result                = Terminal.display(frame).provideLayer(env)
         assertM(result)(isUnit)
       }

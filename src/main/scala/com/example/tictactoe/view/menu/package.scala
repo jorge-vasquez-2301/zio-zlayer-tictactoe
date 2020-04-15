@@ -11,43 +11,44 @@ package object menu {
       def content(isSuspended: Boolean): UIO[String]
       def footer(message: MenuFooterMessage): UIO[String]
     }
-    object Service {
-      val live: ULayer[MenuView] = ZLayer.succeed {
-        new Service {
-          override val header: UIO[String] =
-            UIO.succeed(
-              """ _____  _        _____               _____              
-                #/__   \(_)  ___ /__   \  __ _   ___ /__   \  ___    ___ 
-                #  / /\/| | / __|  / /\/ / _` | / __|  / /\/ / _ \  / _ \
-                # / /   | || (__  / /   | (_| || (__  / /   | (_) ||  __/
-                # \/    |_| \___| \/     \__,_| \___| \/     \___/  \___|""".stripMargin('#')
-            )
+    val live: ULayer[MenuView] = ZLayer.succeed {
+      new Service {
+        override val header: UIO[String] =
+          UIO.succeed(
+            """
+              | _____   __                             _______     ______          ______         
+              |/__  /  / /   ____ ___  _____  _____   /_  __(_)___/_  __/___ _____/_  __/___  ___ 
+              |  / /  / /   / __ `/ / / / _ \/ ___/    / / / / ___// / / __ `/ ___// / / __ \/ _ \
+              | / /__/ /___/ /_/ / /_/ /  __/ /       / / / / /__ / / / /_/ / /__ / / / /_/ /  __/
+              |/____/_____/\__,_/\__, /\___/_/       /_/ /_/\___//_/  \__,_/\___//_/  \____/\___/ 
+              |                 /____/                                                            
+              |""".stripMargin
+          )
 
-          override def content(isSuspended: Boolean): UIO[String] =
-            UIO.succeed {
-              val commands =
-                if (isSuspended) List("new game", "resume", "quit")
-                else List("new game", "quit")
+        override def content(isSuspended: Boolean): UIO[String] =
+          UIO.succeed {
+            val commands =
+              if (isSuspended) List("new game", "resume", "quit")
+              else List("new game", "quit")
 
-              commands
-                .map(cmd => s"* $cmd")
-                .mkString("\n")
-            }
+            commands
+              .map(cmd => s"* $cmd")
+              .mkString("\n")
+          }
 
-          override def footer(message: MenuFooterMessage): UIO[String] =
-            UIO.succeed(message) map {
-              case MenuFooterMessage.Empty          => ""
-              case MenuFooterMessage.InvalidCommand => "Invalid command. Try again."
-            }
-        }
+        override def footer(message: MenuFooterMessage): UIO[String] =
+          UIO.succeed(message) map {
+            case MenuFooterMessage.Empty          => ""
+            case MenuFooterMessage.InvalidCommand => "Invalid command. Try again."
+          }
       }
+    }
 
-      val dummy: ULayer[MenuView] = ZLayer.succeed {
-        new Service {
-          override val header: UIO[String]                             = UIO.succeed("")
-          override def content(isSuspended: Boolean): UIO[String]      = UIO.succeed("")
-          override def footer(message: MenuFooterMessage): UIO[String] = UIO.succeed("")
-        }
+    val dummy: ULayer[MenuView] = ZLayer.succeed {
+      new Service {
+        override val header: UIO[String]                             = UIO.succeed("")
+        override def content(isSuspended: Boolean): UIO[String]      = UIO.succeed("")
+        override def footer(message: MenuFooterMessage): UIO[String] = UIO.succeed("")
       }
     }
 

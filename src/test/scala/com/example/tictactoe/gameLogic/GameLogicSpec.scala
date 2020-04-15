@@ -3,7 +3,7 @@ package com.example.tictactoe.gameLogic
 import zio.test._
 import zio.test.Assertion._
 import com.example.tictactoe.domain.Board.Field
-import com.example.tictactoe.domain.{ Board, GameResult, Piece }
+import com.example.tictactoe.domain.{ Board, FieldAlreadyOccupiedError, GameResult, Piece }
 import zio._
 
 object GameLogicSpec extends DefaultRunnableSpec {
@@ -16,7 +16,7 @@ object GameLogicSpec extends DefaultRunnableSpec {
         },
         testM("fails if field is occupied") {
           val result = GameLogic.putPiece(board, Field.South, Piece.Cross).either
-          assertM(result)(isLeft(isUnit))
+          assertM(result)(isLeft(equalTo(FieldAlreadyOccupiedError)))
         }
       ),
       suite("gameResult")(
@@ -69,7 +69,7 @@ object GameLogicSpec extends DefaultRunnableSpec {
           assertM(result)(equalTo(Piece.Cross))
         }
       )
-    ).provideCustomLayer(GameLogic.Service.live)
+    ).provideCustomLayer(GameLogic.live)
 
   private val board = Map[Field, Piece](
     Field.North -> Piece.Cross,

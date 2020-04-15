@@ -33,14 +33,17 @@ object MenuViewSpec extends DefaultRunnableSpec {
           assertM(result)(equalTo(invalidCommandMessage))
         }
       )
-    ).provideCustomLayer(MenuView.Service.live)
+    ).provideCustomLayer(MenuView.live)
 
   private val asciiArtTicTacToe =
-    """ _____  _        _____               _____              
-      #/__   \(_)  ___ /__   \  __ _   ___ /__   \  ___    ___ 
-      #  / /\/| | / __|  / /\/ / _` | / __|  / /\/ / _ \  / _ \
-      # / /   | || (__  / /   | (_| || (__  / /   | (_) ||  __/
-      # \/    |_| \___| \/     \__,_| \___| \/     \___/  \___|""".stripMargin('#')
+    """
+      | _____   __                             _______     ______          ______         
+      |/__  /  / /   ____ ___  _____  _____   /_  __(_)___/_  __/___ _____/_  __/___  ___ 
+      |  / /  / /   / __ `/ / / / _ \/ ___/    / / / / ___// / / __ `/ ___// / / __ \/ _ \
+      | / /__/ /___/ /_/ / /_/ /  __/ /       / / / / /__ / / / /_/ / /__ / / / /_/ /  __/
+      |/____/_____/\__,_/\__, /\___/_/       /_/ /_/\___//_/  \__,_/\___//_/  \____/\___/ 
+      |                 /____/                                                            
+      |""".stripMargin
 
   private val suspendedCommands =
     """* new game

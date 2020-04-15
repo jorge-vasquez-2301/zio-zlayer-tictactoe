@@ -4,17 +4,17 @@ import zio._
 
 object Board {
 
-  sealed abstract class Field(val value: Int, val name: String)
+  sealed abstract class Field(val value: Int)
   object Field {
-    final case object NorthWest extends Field(1, "nw")
-    final case object North     extends Field(2, "n")
-    final case object NorthEast extends Field(3, "ne")
-    final case object West      extends Field(4, "w")
-    final case object Center    extends Field(5, "c")
-    final case object East      extends Field(6, "e")
-    final case object SouthWest extends Field(7, "sw")
-    final case object South     extends Field(8, "s")
-    final case object SouthEast extends Field(9, "se")
+    final case object NorthWest extends Field(1)
+    final case object North     extends Field(2)
+    final case object NorthEast extends Field(3)
+    final case object West      extends Field(4)
+    final case object Center    extends Field(5)
+    final case object East      extends Field(6)
+    final case object SouthWest extends Field(7)
+    final case object South     extends Field(8)
+    final case object SouthEast extends Field(9)
 
     def make(value: Int): Option[Field] = value match {
       case 1 => Some(NorthWest)

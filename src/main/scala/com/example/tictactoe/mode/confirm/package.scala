@@ -13,34 +13,32 @@ package object confirm {
       def process(input: String, state: State.Confirm): UIO[State]
       def render(state: State.Confirm): UIO[String]
     }
-    object Service {
-      val live: URLayer[ConfirmCommandParser with ConfirmView, ConfirmMode] =
-        ZLayer.fromServices[ConfirmCommandParser.Service, ConfirmView.Service, ConfirmMode.Service] {
-          (confirmCommandParserService, confirmViewService) =>
-            new Service {
-              override def process(input: String, state: State.Confirm): UIO[State] =
-                confirmCommandParserService
-                  .parse(input)
-                  .map {
-                    case ConfirmCommand.Yes => state.confirmed
-                    case ConfirmCommand.No  => state.declined
-                  }
-                  .orElse(ZIO.succeed(state.copy(footerMessage = ConfirmFooterMessage.InvalidCommand)))
+    val live: URLayer[ConfirmCommandParser with ConfirmView, ConfirmMode] =
+      ZLayer.fromServices[ConfirmCommandParser.Service, ConfirmView.Service, ConfirmMode.Service] {
+        (confirmCommandParserService, confirmViewService) =>
+          new Service {
+            override def process(input: String, state: State.Confirm): UIO[State] =
+              confirmCommandParserService
+                .parse(input)
+                .map {
+                  case ConfirmCommand.Yes => state.confirmed
+                  case ConfirmCommand.No  => state.declined
+                }
+                .orElse(ZIO.succeed(state.copy(footerMessage = ConfirmFooterMessage.InvalidCommand)))
 
-              override def render(state: State.Confirm): UIO[String] =
-                for {
-                  header  <- confirmViewService.header(state.action)
-                  content <- confirmViewService.content
-                  footer  <- confirmViewService.footer(state.footerMessage)
-                } yield List(header, content, footer).mkString("\n\n")
-            }
-        }
+            override def render(state: State.Confirm): UIO[String] =
+              for {
+                header  <- confirmViewService.header(state.action)
+                content <- confirmViewService.content
+                footer  <- confirmViewService.footer(state.footerMessage)
+              } yield List(header, content, footer).mkString("\n\n")
+          }
+      }
 
-      val dummy: ULayer[ConfirmMode] = ZLayer.succeed {
-        new Service {
-          override def process(input: String, state: State.Confirm): UIO[State] = UIO.succeed(state)
-          override def render(state: State.Confirm): UIO[String]                = UIO.succeed("")
-        }
+    val dummy: ULayer[ConfirmMode] = ZLayer.succeed {
+      new Service {
+        override def process(input: String, state: State.Confirm): UIO[State] = UIO.succeed(state)
+        override def render(state: State.Confirm): UIO[String]                = UIO.succeed("")
       }
     }
 

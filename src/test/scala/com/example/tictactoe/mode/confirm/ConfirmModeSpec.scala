@@ -30,7 +30,7 @@ object ConfirmModeSpec extends DefaultRunnableSpec {
             (ConfirmViewMock.footer(equalTo(ConfirmFooterMessage.Empty)) returns value("footer"))
 
         val env: ULayer[ConfirmMode] =
-          (ConfirmCommandParser.Service.dummy ++ confirmViewMock) >>> ConfirmMode.Service.live
+          (ConfirmCommandParser.dummy ++ confirmViewMock) >>> ConfirmMode.live
         val result = ConfirmMode.render(currentState).provideLayer(env)
         assertM(result)(equalTo(renderedFrame))
       }
@@ -71,7 +71,7 @@ object ConfirmModeSpec extends DefaultRunnableSpec {
       case None          => ConfirmCommandParserMock.parse(equalTo(input)) returns failure(())
     }
     val env: ULayer[ConfirmMode] =
-      (confirmCommandParserMock ++ ConfirmView.Service.dummy) >>> ConfirmMode.Service.live
+      (confirmCommandParserMock ++ ConfirmView.dummy) >>> ConfirmMode.live
     val result = ConfirmMode.process(input, state).provideLayer(env)
     assertM(result)(equalTo(updatedState))
   }

@@ -25,9 +25,9 @@ object ConfirmModeSpec extends DefaultRunnableSpec {
     suite("render")(
       testM("returns confirm frame") {
         val confirmViewMock: ULayer[ConfirmView] =
-          (ConfirmViewMock.header(equalTo(ConfirmAction.NewGame)) returns value("header")) ++
-            (ConfirmViewMock.content returns value("content")) ++
-            (ConfirmViewMock.footer(equalTo(ConfirmFooterMessage.Empty)) returns value("footer"))
+          ConfirmViewMock.header(equalTo(ConfirmAction.NewGame), value("header")) ++
+            ConfirmViewMock.content(value("content")) ++
+            ConfirmViewMock.footer(equalTo(ConfirmFooterMessage.Empty), value("footer"))
 
         val env: ULayer[ConfirmMode] =
           (ConfirmCommandParser.dummy ++ confirmViewMock) >>> ConfirmMode.live
@@ -67,8 +67,8 @@ object ConfirmModeSpec extends DefaultRunnableSpec {
     updatedState: State
   ): UIO[TestResult] = {
     val confirmCommandParserMock: ULayer[ConfirmCommandParser] = optionCommand match {
-      case Some(command) => ConfirmCommandParserMock.parse(equalTo(input)) returns value(command)
-      case None          => ConfirmCommandParserMock.parse(equalTo(input)) returns failure(())
+      case Some(command) => ConfirmCommandParserMock.parse(equalTo(input), value(command))
+      case None          => ConfirmCommandParserMock.parse(equalTo(input), failure(ParseError))
     }
     val env: ULayer[ConfirmMode] =
       (confirmCommandParserMock ++ ConfirmView.dummy) >>> ConfirmMode.live

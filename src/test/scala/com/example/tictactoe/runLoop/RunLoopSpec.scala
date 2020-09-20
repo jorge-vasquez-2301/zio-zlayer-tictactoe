@@ -14,11 +14,11 @@ object RunLoopSpec extends DefaultRunnableSpec {
     suite("step")(
       testM("displays current state and transforms it based on user input") {
         val controllerMock: ULayer[Controller] =
-          (ControllerMock.render(equalTo(currentState)) returns value(renderedFrame)) ++
-            (ControllerMock.process(equalTo(userInput -> currentState)) returns value(nextState))
+          ControllerMock.render(equalTo(currentState), value(renderedFrame)) ++
+            ControllerMock.process(equalTo(userInput -> currentState), value(nextState))
         val terminalMock: ULayer[Terminal] =
-          (TerminalMock.display(equalTo(renderedFrame)) returns unit) ++
-            (TerminalMock.getUserInput returns value(userInput))
+          TerminalMock.display(equalTo(renderedFrame), unit) ++
+            TerminalMock.getUserInput(value(userInput))
 
         val env: ULayer[RunLoop] = (controllerMock ++ terminalMock) >>> RunLoop.live
         val result               = RunLoop.step(currentState).either.provideLayer(env)

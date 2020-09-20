@@ -19,34 +19,24 @@ import zio.test.mock._
 import zio._
 
 object mocks {
-  object ControllerMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[Controller, I, A] {
-      def envBuilder: URLayer[Has[Proxy], Controller] = ControllerMock.envBuilder
-    }
-    object process extends Tag[(String, State), State]
-    object render  extends Tag[State, String]
+  object ControllerMock extends Mock[Controller] {
 
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], Controller] =
-      ZLayer.fromService(invoke =>
+    val compose: URLayer[Has[Proxy], Controller] =
+      ZLayer.fromService(proxy =>
         new Controller.Service {
-          override def process(input: String, state: State): UIO[State] = invoke(ControllerMock.process, input, state)
-          override def render(state: State): UIO[String]                = invoke(ControllerMock.render, state)
+          override def process(input: String, state: State): UIO[State] = proxy(ControllerMock.process, input, state)
+          override def render(state: State): UIO[String]                = proxy(ControllerMock.render, state)
         }
       )
+
+    object process extends Effect[(String, State), Nothing, State]
+
+    object render extends Effect[State, Nothing, String]
   }
 
-  object ConfirmModeMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[ConfirmMode, I, A] {
-      def envBuilder: URLayer[Has[Proxy], ConfirmMode] = ConfirmModeMock.envBuilder
-    }
-    object process extends Tag[(String, State.Confirm), State]
-    object render  extends Tag[State.Confirm, String]
+  object ConfirmModeMock extends Mock[ConfirmMode] {
 
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], ConfirmMode] =
+    val compose: URLayer[Has[Proxy], ConfirmMode] =
       ZLayer.fromService(invoke =>
         new ConfirmMode.Service {
           override def process(input: String, state: State.Confirm): UIO[State] =
@@ -55,38 +45,30 @@ object mocks {
           override def render(state: State.Confirm): UIO[String] = invoke(ConfirmModeMock.render, state)
         }
       )
+
+    object process extends Effect[(String, State.Confirm), Nothing, State]
+
+    object render extends Effect[State.Confirm, Nothing, String]
   }
 
-  object GameModeMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[GameMode, I, A] {
-      def envBuilder: URLayer[Has[Proxy], GameMode] = GameModeMock.envBuilder
-    }
-    object process extends Tag[(String, State.Game), State]
-    object render  extends Tag[State.Game, String]
-
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], GameMode] =
-      ZLayer.fromService(invoke =>
+  object GameModeMock extends Mock[GameMode] {
+    val compose: URLayer[Has[Proxy], GameMode] =
+      ZLayer.fromService { proxy =>
         new GameMode.Service {
           override def process(input: String, state: State.Game): UIO[State] =
-            invoke(GameModeMock.process, input, state)
+            proxy(GameModeMock.process, input, state)
 
-          override def render(state: State.Game): UIO[String] = invoke(GameModeMock.render, state)
+          override def render(state: State.Game): UIO[String] = proxy(GameModeMock.render, state)
         }
-      )
+      }
+
+    object process extends Effect[(String, State.Game), Nothing, State]
+
+    object render extends Effect[State.Game, Nothing, String]
   }
 
-  object MenuModeMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[MenuMode, I, A] {
-      def envBuilder: URLayer[Has[Proxy], MenuMode] = MenuModeMock.envBuilder
-    }
-    object process extends Tag[(String, State.Menu), State]
-    object render  extends Tag[State.Menu, String]
-
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], MenuMode] =
+  object MenuModeMock extends Mock[MenuMode] {
+    val compose: URLayer[Has[Proxy], MenuMode] =
       ZLayer.fromService(invoke =>
         new MenuMode.Service {
           override def process(input: String, state: State.Menu): UIO[State] =
@@ -95,68 +77,37 @@ object mocks {
           override def render(state: State.Menu): UIO[String] = invoke(MenuModeMock.render, state)
         }
       )
+
+    object process extends Effect[(String, State.Menu), Nothing, State]
+
+    object render extends Effect[State.Menu, Nothing, String]
   }
 
-  object ConfirmCommandParserMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[ConfirmCommandParser, I, A] {
-      def envBuilder: URLayer[Has[Proxy], ConfirmCommandParser] = ConfirmCommandParserMock.envBuilder
-    }
-    object parse extends Tag[String, ConfirmCommand]
+  object ConfirmCommandParserMock extends Mock[ConfirmCommandParser] {
 
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], ConfirmCommandParser] =
-      ZLayer.fromService(invoke =>
-        new ConfirmCommandParser.Service {
-          override def parse(input: String): IO[AppError, ConfirmCommand] =
-            invoke(ConfirmCommandParserMock.parse, input)
-        }
-      )
+    val compose: URLayer[Has[Proxy], ConfirmCommandParser] =
+      ZLayer.fromService(invoke => (input: String) => invoke(ConfirmCommandParserMock.parse, input))
+
+    object parse extends Effect[String, AppError, ConfirmCommand]
   }
 
-  object GameCommandParserMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[GameCommandParser, I, A] {
-      def envBuilder: URLayer[Has[Proxy], GameCommandParser] = GameCommandParserMock.envBuilder
-    }
-    object parse extends Tag[String, GameCommand]
+  object GameCommandParserMock extends Mock[GameCommandParser] {
+    val compose: URLayer[Has[Proxy], GameCommandParser] =
+      ZLayer.fromService(invoke => (input: String) => invoke(GameCommandParserMock.parse, input))
 
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], GameCommandParser] =
-      ZLayer.fromService(invoke =>
-        new GameCommandParser.Service {
-          override def parse(input: String): IO[AppError, GameCommand] = invoke(GameCommandParserMock.parse, input)
-        }
-      )
+    object parse extends Effect[String, AppError, GameCommand]
   }
 
-  object MenuCommandParserMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[MenuCommandParser, I, A] {
-      def envBuilder: URLayer[Has[Proxy], MenuCommandParser] = MenuCommandParserMock.envBuilder
-    }
-    object parse extends Tag[String, MenuCommand]
-
+  object MenuCommandParserMock extends Mock[MenuCommandParser] {
     // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], MenuCommandParser] =
-      ZLayer.fromService(invoke =>
-        new MenuCommandParser.Service {
-          override def parse(input: String): IO[AppError, MenuCommand] = invoke(MenuCommandParserMock.parse, input)
-        }
-      )
+    val compose: URLayer[Has[Proxy], MenuCommandParser] =
+      ZLayer.fromService(invoke => (input: String) => invoke(MenuCommandParserMock.parse, input))
+
+    object parse extends Effect[String, Nothing, MenuCommand]
   }
 
-  object ConfirmViewMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[ConfirmView, I, A] {
-      def envBuilder: URLayer[Has[Proxy], ConfirmView] = ConfirmViewMock.envBuilder
-    }
-    object header  extends Tag[ConfirmAction, String]
-    object content extends Tag[Unit, String]
-    object footer  extends Tag[ConfirmFooterMessage, String]
-
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], ConfirmView] =
+  object ConfirmViewMock extends Mock[ConfirmView] {
+    val compose: URLayer[Has[Proxy], ConfirmView] =
       ZLayer.fromService(invoke =>
         new ConfirmView.Service {
           override def header(action: ConfirmAction): UIO[String]         = invoke(ConfirmViewMock.header, action)
@@ -164,19 +115,16 @@ object mocks {
           override def footer(message: ConfirmFooterMessage): UIO[String] = invoke(ConfirmViewMock.footer, message)
         }
       )
+
+    object header extends Effect[ConfirmAction, Nothing, String]
+
+    object content extends Effect[Unit, Nothing, String]
+
+    object footer extends Effect[ConfirmFooterMessage, Nothing, String]
   }
 
-  object GameViewMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[GameView, I, A] {
-      def envBuilder: URLayer[Has[Proxy], GameView] = GameViewMock.envBuilder
-    }
-    object header  extends Tag[(GameResult, Piece, Player), String]
-    object content extends Tag[(Map[Field, Piece], GameResult), String]
-    object footer  extends Tag[GameFooterMessage, String]
-
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], GameView] =
+  object GameViewMock extends Mock[GameView] {
+    val compose: URLayer[Has[Proxy], GameView] =
       ZLayer.fromService(invoke =>
         new GameView.Service {
           override def header(result: GameResult, turn: Piece, player: Player): UIO[String] =
@@ -188,19 +136,16 @@ object mocks {
           override def footer(message: GameFooterMessage): UIO[String] = invoke(GameViewMock.footer, message)
         }
       )
+
+    object header extends Effect[(GameResult, Piece, Player), Nothing, String]
+
+    object content extends Effect[(Map[Field, Piece], GameResult), Nothing, String]
+
+    object footer extends Effect[GameFooterMessage, Nothing, String]
   }
 
-  object MenuViewMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[MenuView, I, A] {
-      def envBuilder: URLayer[Has[Proxy], MenuView] = MenuViewMock.envBuilder
-    }
-    object header  extends Tag[Unit, String]
-    object content extends Tag[Boolean, String]
-    object footer  extends Tag[MenuFooterMessage, String]
-
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], MenuView] =
+  object MenuViewMock extends Mock[MenuView] {
+    val compose: URLayer[Has[Proxy], MenuView] =
       ZLayer.fromService(invoke =>
         new MenuView.Service {
           override val header: UIO[String]                             = invoke(MenuViewMock.header)
@@ -208,20 +153,16 @@ object mocks {
           override def footer(message: MenuFooterMessage): UIO[String] = invoke(MenuViewMock.footer, message)
         }
       )
+
+    object header extends Effect[Unit, Nothing, String]
+
+    object content extends Effect[Boolean, Nothing, String]
+
+    object footer extends Effect[MenuFooterMessage, Nothing, String]
   }
 
-  object GameLogicMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[GameLogic, I, A] {
-      def envBuilder: URLayer[Has[Proxy], GameLogic] = GameLogicMock.envBuilder
-    }
-
-    object putPiece   extends Tag[(Map[Field, Piece], Field, Piece), Map[Field, Piece]]
-    object gameResult extends Tag[Map[Field, Piece], GameResult]
-    object nextTurn   extends Tag[Piece, Piece]
-
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], GameLogic] =
+  object GameLogicMock extends Mock[GameLogic] {
+    val compose: URLayer[Has[Proxy], GameLogic] =
       ZLayer.fromService(invoke =>
         new GameLogic.Service {
           override def putPiece(board: Map[Field, Piece], field: Field, piece: Piece): IO[AppError, Map[Field, Piece]] =
@@ -231,41 +172,32 @@ object mocks {
           override def nextTurn(currentTurn: Piece): UIO[Piece]              = invoke(GameLogicMock.nextTurn, currentTurn)
         }
       )
+
+    object putPiece extends Effect[(Map[Field, Piece], Field, Piece), AppError, Map[Field, Piece]]
+
+    object gameResult extends Effect[Map[Field, Piece], Nothing, GameResult]
+
+    object nextTurn extends Effect[Piece, Nothing, Piece]
   }
 
-  object OpponentAiMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[OpponentAi, I, A] {
-      def envBuilder: URLayer[Has[Proxy], OpponentAi] = OpponentAiMock.envBuilder
-    }
+  object OpponentAiMock extends Mock[OpponentAi] {
+    val compose: URLayer[Has[Proxy], OpponentAi] =
+      ZLayer.fromService(invoke => (board: Map[Field, Piece]) => invoke(OpponentAiMock.randomMove, board))
 
-    object randomMove extends Tag[Map[Field, Piece], Field]
-
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], OpponentAi] =
-      ZLayer.fromService(invoke =>
-        new OpponentAi.Service {
-          override def randomMove(board: Map[Field, Piece]): IO[AppError, Field] =
-            invoke(OpponentAiMock.randomMove, board)
-        }
-      )
+    object randomMove extends Effect[Map[Field, Piece], Nothing, Field]
   }
 
-  object TerminalMock {
-    // Capability tags
-    sealed trait Tag[I, A] extends Method[Terminal, I, A] {
-      def envBuilder: URLayer[Has[Proxy], Terminal] = TerminalMock.envBuilder
-    }
-    object getUserInput extends Tag[Unit, String]
-    object display      extends Tag[String, Unit]
-
-    // Mock layer
-    private val envBuilder: URLayer[Has[Proxy], Terminal] =
+  object TerminalMock extends Mock[Terminal] {
+    val compose: URLayer[Has[Proxy], Terminal] =
       ZLayer.fromService(invoke =>
         new Terminal.Service {
           override val getUserInput: UIO[String]         = invoke(TerminalMock.getUserInput)
           override def display(frame: String): UIO[Unit] = invoke(TerminalMock.display, frame)
         }
       )
+
+    object getUserInput extends Effect[Unit, Nothing, String]
+
+    object display extends Effect[String, Nothing, Unit]
   }
 }

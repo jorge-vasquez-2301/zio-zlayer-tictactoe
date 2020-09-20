@@ -40,17 +40,17 @@ object MenuModeSpec extends DefaultRunnableSpec {
       testM("game in progress returns suspended menu frame") {
         checkRender(
           suspendedMenuState,
-          (MenuViewMock.header returns value("header")) ++
-            (MenuViewMock.content(isTrue) returns value("content")) ++
-            (MenuViewMock.footer(equalTo(MenuFooterMessage.Empty)) returns value("footer"))
+          MenuViewMock.header(value("header")) ++
+            MenuViewMock.content(isTrue, value("content")) ++
+            MenuViewMock.footer(equalTo(MenuFooterMessage.Empty), value("footer"))
         )
       },
       testM("no game in progress returns default menu frame") {
         checkRender(
           menuState,
-          (MenuViewMock.header returns value("header")) ++
-            (MenuViewMock.content(isFalse) returns value("content")) ++
-            (MenuViewMock.footer(equalTo(MenuFooterMessage.Empty)) returns value("footer"))
+          MenuViewMock.header(value("header")) ++
+            MenuViewMock.content(isFalse, value("content")) ++
+            MenuViewMock.footer(equalTo(MenuFooterMessage.Empty), value("footer"))
         )
       }
     )
@@ -100,7 +100,7 @@ object MenuModeSpec extends DefaultRunnableSpec {
     updatedState: State
   ): UIO[TestResult] = {
     val menuCommandParserMock: ULayer[MenuCommandParser] =
-      MenuCommandParserMock.parse(equalTo(input)) returns value(command)
+      MenuCommandParserMock.parse(equalTo(input), value(command))
     val env: ULayer[MenuMode] = (menuCommandParserMock ++ MenuView.dummy) >>> MenuMode.live
     val result                = MenuMode.process(input, state).provideLayer(env)
     assertM(result)(equalTo(updatedState))

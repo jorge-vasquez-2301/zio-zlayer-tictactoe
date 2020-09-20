@@ -31,14 +31,14 @@ object TicTacToe extends App {
     loop(State.initial)
   }
 
-  def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = program.provideLayer(prepareEnvironment).as(0)
+  def run(args: List[String]): URIO[ZEnv, ExitCode] = program.provideLayer(prepareEnvironment).exitCode
 
   private val prepareEnvironment: URLayer[Console with Random, RunLoop] = {
     val confirmModeDeps: ULayer[ConfirmCommandParser with ConfirmView] =
       ConfirmCommandParser.live ++ ConfirmView.live
     val menuModeDeps: ULayer[MenuCommandParser with MenuView] =
       MenuCommandParser.live ++ MenuView.live
-    val gameModeDeps: URLayer[Random, GameCommandParser with GameView with GameLogic with OpponentAi] =
+    val gameModeDeps: ZLayer[Random, Nothing, GameCommandParser with GameView with GameLogic with OpponentAi] =
       GameCommandParser.live ++ GameView.live ++ GameLogic.live ++ OpponentAi.live
 
     val confirmModeNoDeps: ULayer[ConfirmMode]       = confirmModeDeps >>> ConfirmMode.live

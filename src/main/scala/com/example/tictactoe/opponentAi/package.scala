@@ -17,7 +17,7 @@ package object opponentAi {
           val unoccupied = (Field.all.toSet -- board.keySet).toList.sortBy(_.value)
           unoccupied.size match {
             case 0 => IO.fail(FullBoardError)
-            case n => randomService.nextInt(n).map(unoccupied(_))
+            case n => randomService.nextIntBounded(n).map(unoccupied(_))
           }
         }
       }

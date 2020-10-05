@@ -2,9 +2,12 @@ package com.example.tictactoe.view
 
 import com.example.tictactoe.domain.MenuFooterMessage
 import zio._
+import zio.macros.accessible
 
 package object menu {
   type MenuView = Has[MenuView.Service]
+
+  @accessible
   object MenuView {
     trait Service {
       val header: UIO[String]
@@ -51,10 +54,5 @@ package object menu {
         override def footer(message: MenuFooterMessage): UIO[String] = UIO.succeed("")
       }
     }
-
-    // accessors
-    val header: URIO[MenuView, String]                             = ZIO.accessM(_.get.header)
-    def content(isSuspended: Boolean): URIO[MenuView, String]      = ZIO.accessM(_.get.content(isSuspended))
-    def footer(message: MenuFooterMessage): URIO[MenuView, String] = ZIO.accessM(_.get.footer(message))
   }
 }

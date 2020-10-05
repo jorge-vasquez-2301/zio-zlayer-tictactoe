@@ -2,9 +2,12 @@ package com.example.tictactoe.parser
 
 import com.example.tictactoe.domain.{ AppError, MenuCommand, ParseError }
 import zio._
+import zio.macros.accessible
 
 package object menu {
   type MenuCommandParser = Has[MenuCommandParser.Service]
+
+  @accessible
   object MenuCommandParser {
     trait Service {
       def parse(input: String): IO[AppError, MenuCommand]
@@ -26,8 +29,5 @@ package object menu {
         override def parse(input: String): IO[AppError, MenuCommand] = IO.fail(ParseError)
       }
     }
-
-    // accessors
-    def parse(input: String): ZIO[MenuCommandParser, AppError, MenuCommand] = ZIO.accessM(_.get.parse(input))
   }
 }

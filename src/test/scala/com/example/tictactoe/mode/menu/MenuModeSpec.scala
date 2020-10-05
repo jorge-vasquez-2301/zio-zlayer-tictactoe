@@ -1,14 +1,14 @@
 package com.example.tictactoe.mode.menu
 
-import zio._
-import zio.test._
-import zio.test.Assertion._
-import zio.test.mock.Expectation._
 import com.example.tictactoe.domain.Board.Field
 import com.example.tictactoe.domain._
 import com.example.tictactoe.mocks.{ MenuCommandParserMock, MenuViewMock }
 import com.example.tictactoe.parser.menu.MenuCommandParser
 import com.example.tictactoe.view.menu.MenuView
+import zio._
+import zio.test.Assertion._
+import zio.test._
+import zio.test.mock.Expectation._
 
 object MenuModeSpec extends DefaultRunnableSpec {
   def spec = suite("MenuMode")(
@@ -40,17 +40,17 @@ object MenuModeSpec extends DefaultRunnableSpec {
       testM("game in progress returns suspended menu frame") {
         checkRender(
           suspendedMenuState,
-          (MenuViewMock.header returns value("header")) ++
-            (MenuViewMock.content(isTrue) returns value("content")) ++
-            (MenuViewMock.footer(equalTo(MenuFooterMessage.Empty)) returns value("footer"))
+          MenuViewMock.Header(value("header")) ++
+            MenuViewMock.Content(isTrue, value("content")) ++
+            MenuViewMock.Footer(equalTo(MenuFooterMessage.Empty), value("footer"))
         )
       },
       testM("no game in progress returns default menu frame") {
         checkRender(
           menuState,
-          (MenuViewMock.header returns value("header")) ++
-            (MenuViewMock.content(isFalse) returns value("content")) ++
-            (MenuViewMock.footer(equalTo(MenuFooterMessage.Empty)) returns value("footer"))
+          MenuViewMock.Header(value("header")) ++
+            MenuViewMock.Content(isFalse, value("content")) ++
+            MenuViewMock.Footer(equalTo(MenuFooterMessage.Empty), value("footer"))
         )
       }
     )
@@ -100,7 +100,7 @@ object MenuModeSpec extends DefaultRunnableSpec {
     updatedState: State
   ): UIO[TestResult] = {
     val menuCommandParserMock: ULayer[MenuCommandParser] =
-      MenuCommandParserMock.parse(equalTo(input)) returns value(command)
+      MenuCommandParserMock.Parse(equalTo(input), value(command))
     val env: ULayer[MenuMode] = (menuCommandParserMock ++ MenuView.dummy) >>> MenuMode.live
     val result                = MenuMode.process(input, state).provideLayer(env)
     assertM(result)(equalTo(updatedState))

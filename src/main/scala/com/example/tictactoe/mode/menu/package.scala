@@ -4,9 +4,12 @@ import com.example.tictactoe.domain._
 import com.example.tictactoe.parser.menu.MenuCommandParser
 import com.example.tictactoe.view.menu.MenuView
 import zio._
+import zio.macros.accessible
 
 package object menu {
   type MenuMode = Has[MenuMode.Service]
+
+  @accessible
   object MenuMode {
     trait Service {
       def process(input: String, state: State.Menu): UIO[State]
@@ -64,11 +67,5 @@ package object menu {
         override def render(state: State.Menu): UIO[String]                = UIO.succeed("")
       }
     }
-
-    // accessors
-    def process(input: String, state: State.Menu): URIO[MenuMode, State] =
-      ZIO.accessM(_.get.process(input, state))
-
-    def render(state: State.Menu): URIO[MenuMode, String] = ZIO.accessM(_.get.render(state))
   }
 }

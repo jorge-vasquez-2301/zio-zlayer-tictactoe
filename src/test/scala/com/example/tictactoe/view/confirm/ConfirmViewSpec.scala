@@ -1,8 +1,8 @@
 package com.example.tictactoe.view.confirm
 
-import zio.test._
-import zio.test.Assertion._
 import com.example.tictactoe.domain.{ ConfirmAction, ConfirmFooterMessage }
+import zio.test.Assertion._
+import zio.test._
 
 object ConfirmViewSpec extends DefaultRunnableSpec {
   def spec =

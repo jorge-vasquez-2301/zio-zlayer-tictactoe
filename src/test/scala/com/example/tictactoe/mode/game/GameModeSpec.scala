@@ -17,7 +17,7 @@ object GameModeSpec extends DefaultRunnableSpec {
     suite("process")(
       testM("menu returns suspended menu state") {
         val gameCommandParserMock: ULayer[GameCommandParser] =
-          GameCommandParserMock.parse(equalTo("menu")) returns value(GameCommand.Menu)
+          GameCommandParserMock.Parse(equalTo("menu"), value(GameCommand.Menu))
         val env: ULayer[GameMode] =
           (gameCommandParserMock ++ GameView.dummy ++ OpponentAi.dummy ++ GameLogic.dummy) >>> GameMode.live
 
@@ -27,9 +27,10 @@ object GameModeSpec extends DefaultRunnableSpec {
       suite("put <field>")(
         testM("returns current state with GameMessage.FieldOccupied if field is occupied") {
           val gameCommandParserMock: ULayer[GameCommandParser] =
-            GameCommandParserMock.parse(equalTo("put 2")) returns value(GameCommand.Put(Field.North))
+            GameCommandParserMock.Parse(equalTo("put 2"), value(GameCommand.Put(Field.North)))
           val gameLogicMock: ULayer[GameLogic] =
-            GameLogicMock.putPiece(equalTo((gameState.board, Field.North, Piece.Cross))) returns failure(())
+            GameLogicMock
+              .PutPiece(equalTo((gameState.board, Field.North, Piece.Cross)), failure(FieldAlreadyOccupiedError))
           val env: ULayer[GameMode] =
             (gameCommandParserMock ++ GameView.dummy ++ OpponentAi.dummy ++ gameLogicMock) >>> GameMode.live
 
@@ -38,13 +39,14 @@ object GameModeSpec extends DefaultRunnableSpec {
         },
         testM("returns state with added piece and turn advanced to next player if field is unoccupied") {
           val gameCommandParserMock: ULayer[GameCommandParser] =
-            GameCommandParserMock.parse(equalTo("put 6")) returns value(GameCommand.Put(Field.East))
+            GameCommandParserMock.Parse(equalTo("put 6"), value(GameCommand.Put(Field.East)))
           val gameLogicMock: ULayer[GameLogic] =
-            (GameLogicMock.putPiece(equalTo((gameState.board, Field.East, Piece.Cross))) returns value(
-              pieceAddedEastState.board
-            )) ++
-              (GameLogicMock.gameResult(equalTo(pieceAddedEastState.board)) returns value(GameResult.Ongoing)) ++
-              (GameLogicMock.nextTurn(equalTo(Piece.Cross)) returns value(Piece.Nought))
+            GameLogicMock.PutPiece(
+              equalTo((gameState.board, Field.East, Piece.Cross)),
+              value(pieceAddedEastState.board)
+            ) ++
+              GameLogicMock.GameResult(equalTo(pieceAddedEastState.board), value(GameResult.Ongoing)) ++
+              GameLogicMock.NextTurn(equalTo(Piece.Cross), value(Piece.Nought))
           val env: ULayer[GameMode] =
             (gameCommandParserMock ++ GameView.dummy ++ OpponentAi.dummy ++ gameLogicMock) >>> GameMode.live
 
@@ -53,7 +55,7 @@ object GameModeSpec extends DefaultRunnableSpec {
         },
         testM("otherwise returns current state with GameMessage.InvalidCommand") {
           val gameCommandParserMock: ULayer[GameCommandParser] =
-            GameCommandParserMock.parse(equalTo("foo")) returns failure(())
+            GameCommandParserMock.Parse(equalTo("foo"), failure(ParseError))
           val env: ULayer[GameMode] =
             (gameCommandParserMock ++ GameView.dummy ++ OpponentAi.dummy ++ GameLogic.dummy) >>> GameMode.live
 

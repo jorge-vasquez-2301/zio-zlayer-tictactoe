@@ -1,11 +1,14 @@
 package com.example.tictactoe
 
-import com.example.tictactoe.domain.{ AppError, Board, FieldAlreadyOccupiedError, GameResult, Piece }
-import Board.Field
+import com.example.tictactoe.domain.Board.Field
+import com.example.tictactoe.domain._
 import zio._
+import zio.macros.accessible
 
 package object gameLogic {
   type GameLogic = Has[GameLogic.Service]
+
+  @accessible
   object GameLogic {
     trait Service {
       def putPiece(board: Map[Field, Piece], field: Field, piece: Piece): IO[AppError, Map[Field, Piece]]
@@ -63,11 +66,5 @@ package object gameLogic {
         override def nextTurn(currentTurn: Piece): UIO[Piece]              = UIO.succeed(Piece.Cross)
       }
     }
-
-    def putPiece(board: Map[Field, Piece], field: Field, piece: Piece): ZIO[GameLogic, AppError, Map[Field, Piece]] =
-      ZIO.accessM(_.get.putPiece(board, field, piece))
-
-    def gameResult(board: Map[Field, Piece]): URIO[GameLogic, GameResult] = ZIO.accessM(_.get.gameResult(board))
-    def nextTurn(currentTurn: Piece): URIO[GameLogic, Piece]              = ZIO.accessM(_.get.nextTurn(currentTurn))
   }
 }

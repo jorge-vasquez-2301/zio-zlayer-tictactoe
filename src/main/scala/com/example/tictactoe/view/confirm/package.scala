@@ -2,10 +2,12 @@ package com.example.tictactoe.view
 
 import com.example.tictactoe.domain.{ ConfirmAction, ConfirmFooterMessage }
 import zio._
+import zio.macros.accessible
 
 package object confirm {
   type ConfirmView = Has[ConfirmView.Service]
 
+  @accessible
   object ConfirmView {
     trait Service {
       def header(action: ConfirmAction): UIO[String]
@@ -46,10 +48,5 @@ package object confirm {
         override def footer(message: ConfirmFooterMessage): UIO[String] = UIO.succeed("")
       }
     }
-
-    // accessors
-    def header(action: ConfirmAction): URIO[ConfirmView, String]         = ZIO.accessM(_.get.header(action))
-    val content: URIO[ConfirmView, String]                               = ZIO.accessM(_.get.content)
-    def footer(message: ConfirmFooterMessage): URIO[ConfirmView, String] = ZIO.accessM(_.get.footer(message))
   }
 }

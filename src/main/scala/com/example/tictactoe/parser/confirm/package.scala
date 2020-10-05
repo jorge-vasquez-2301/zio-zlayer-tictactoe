@@ -2,10 +2,12 @@ package com.example.tictactoe.parser
 
 import com.example.tictactoe.domain.{ AppError, ConfirmCommand, ParseError }
 import zio._
+import zio.macros.accessible
 
 package object confirm {
   type ConfirmCommandParser = Has[ConfirmCommandParser.Service]
 
+  @accessible
   object ConfirmCommandParser {
     trait Service {
       def parse(input: String): IO[AppError, ConfirmCommand]
@@ -26,8 +28,5 @@ package object confirm {
         override def parse(input: String): IO[AppError, ConfirmCommand] = IO.fail(ParseError)
       }
     }
-
-    // accessors
-    def parse(input: String): ZIO[ConfirmCommandParser, AppError, ConfirmCommand] = ZIO.accessM(_.get.parse(input))
   }
 }

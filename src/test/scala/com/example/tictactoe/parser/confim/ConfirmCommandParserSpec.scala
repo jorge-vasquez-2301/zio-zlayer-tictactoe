@@ -1,9 +1,9 @@
 package com.example.tictactoe.parser.confim
 
-import zio.test._
-import zio.test.Assertion._
 import com.example.tictactoe.domain.{ ConfirmCommand, ParseError }
 import com.example.tictactoe.parser.confirm.ConfirmCommandParser
+import zio.test.Assertion._
+import zio.test._
 
 object ConfirmCommandParserSpec extends DefaultRunnableSpec {
   def spec =

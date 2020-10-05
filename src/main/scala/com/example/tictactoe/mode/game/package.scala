@@ -1,15 +1,18 @@
 package com.example.tictactoe.mode
 
+import com.example.tictactoe.domain.Board.Field
 import com.example.tictactoe.domain._
-import Board.Field
 import com.example.tictactoe.gameLogic.GameLogic
 import com.example.tictactoe.opponentAi.OpponentAi
 import com.example.tictactoe.parser.game.GameCommandParser
 import com.example.tictactoe.view.game.GameView
 import zio._
+import zio.macros.accessible
 
 package object game {
   type GameMode = Has[GameMode.Service]
+
+  @accessible
   object GameMode {
     trait Service {
       def process(input: String, state: State.Game): UIO[State]
@@ -73,11 +76,5 @@ package object game {
         override def render(state: State.Game): UIO[String]                = UIO.succeed("")
       }
     }
-
-    // accessors
-    def process(input: String, state: State.Game): URIO[GameMode, State] =
-      ZIO.accessM(_.get.process(input, state))
-
-    def render(state: State.Game): URIO[GameMode, String] = ZIO.accessM(_.get.render(state))
   }
 }

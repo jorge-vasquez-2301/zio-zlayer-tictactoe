@@ -4,10 +4,12 @@ import com.example.tictactoe.domain.{ ConfirmCommand, ConfirmFooterMessage, Stat
 import com.example.tictactoe.parser.confirm.ConfirmCommandParser
 import com.example.tictactoe.view.confirm.ConfirmView
 import zio._
+import zio.macros.accessible
 
 package object confirm {
   type ConfirmMode = Has[ConfirmMode.Service]
 
+  @accessible
   object ConfirmMode {
     trait Service {
       def process(input: String, state: State.Confirm): UIO[State]
@@ -41,11 +43,5 @@ package object confirm {
         override def render(state: State.Confirm): UIO[String]                = UIO.succeed("")
       }
     }
-
-    // accessors
-    def process(input: String, state: State.Confirm): URIO[ConfirmMode, State] =
-      ZIO.accessM(_.get.process(input, state))
-
-    def render(state: State.Confirm): URIO[ConfirmMode, String] = ZIO.accessM(_.get.render(state))
   }
 }

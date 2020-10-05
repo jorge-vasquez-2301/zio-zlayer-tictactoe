@@ -1,8 +1,8 @@
 package com.example.tictactoe.parser.menu
 
-import zio.test._
-import zio.test.Assertion._
 import com.example.tictactoe.domain.{ MenuCommand, ParseError }
+import zio.test.Assertion._
+import zio.test._
 
 object MenuCommandParserSpec extends DefaultRunnableSpec {
   def spec = suite("MenuCommandParser")(

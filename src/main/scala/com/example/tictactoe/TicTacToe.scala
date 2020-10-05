@@ -1,12 +1,12 @@
 package com.example.tictactoe
 
-import com.example.tictactoe.opponentAi.OpponentAi
 import com.example.tictactoe.controller.Controller
 import com.example.tictactoe.domain.State
 import com.example.tictactoe.gameLogic.GameLogic
 import com.example.tictactoe.mode.confirm.ConfirmMode
 import com.example.tictactoe.mode.game.GameMode
 import com.example.tictactoe.mode.menu.MenuMode
+import com.example.tictactoe.opponentAi.OpponentAi
 import com.example.tictactoe.parser.confirm.ConfirmCommandParser
 import com.example.tictactoe.parser.game.GameCommandParser
 import com.example.tictactoe.parser.menu.MenuCommandParser
@@ -31,7 +31,7 @@ object TicTacToe extends App {
     loop(State.initial)
   }
 
-  def run(args: List[String]): ZIO[ZEnv, Nothing, Int] = program.provideLayer(prepareEnvironment).as(0)
+  def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = program.provideLayer(prepareEnvironment).exitCode
 
   private val prepareEnvironment: URLayer[Console with Random, RunLoop] = {
     val confirmModeDeps: ULayer[ConfirmCommandParser with ConfirmView] =

@@ -1,7 +1,7 @@
 package com.example.tictactoe.controller
 
-import com.example.tictactoe.mocks._
 import com.example.tictactoe.domain._
+import com.example.tictactoe.mocks._
 import com.example.tictactoe.mode.confirm.ConfirmMode
 import com.example.tictactoe.mode.game.GameMode
 import com.example.tictactoe.mode.menu.MenuMode
@@ -79,12 +79,12 @@ object ControllerSpec extends DefaultRunnableSpec {
   private val shutdownMessage = "Shutting down..."
 
   private val env: ULayer[Controller] =
-    ((ConfirmModeMock.process(equalTo((userInput, confirmState))) returns value(menuState)) ||
-      (GameModeMock.process(equalTo((userInput, gameState))) returns value(menuState)) ||
-      (MenuModeMock.process(equalTo((userInput, menuState))) returns value(confirmState)) ||
-      (ConfirmModeMock.render(equalTo(confirmState)) returns value(renderedFrame)) ||
-      (GameModeMock.render(equalTo(gameState)) returns value(renderedFrame)) ||
-      (MenuModeMock.render(equalTo(menuState)) returns value(renderedFrame))) >>> Controller.live
+    (ConfirmModeMock.Process(equalTo((userInput, confirmState)), value(menuState)) ||
+      GameModeMock.Process(equalTo((userInput, gameState)), value(menuState)) ||
+      MenuModeMock.Process(equalTo((userInput, menuState)), value(confirmState)) ||
+      ConfirmModeMock.Render(equalTo(confirmState), value(renderedFrame)) ||
+      GameModeMock.Render(equalTo(gameState), value(renderedFrame)) ||
+      MenuModeMock.Render(equalTo(menuState), value(renderedFrame))) >>> Controller.live
 
   private val dummyEnv: ULayer[Controller] =
     (ConfirmMode.dummy ++ GameMode.dummy ++ MenuMode.dummy) >>> Controller.live

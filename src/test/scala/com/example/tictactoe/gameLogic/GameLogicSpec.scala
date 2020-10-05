@@ -1,10 +1,10 @@
 package com.example.tictactoe.gameLogic
 
-import zio.test._
-import zio.test.Assertion._
 import com.example.tictactoe.domain.Board.Field
 import com.example.tictactoe.domain.{ Board, FieldAlreadyOccupiedError, GameResult, Piece }
 import zio._
+import zio.test.Assertion._
+import zio.test._
 
 object GameLogicSpec extends DefaultRunnableSpec {
   def spec =

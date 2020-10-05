@@ -3,9 +3,12 @@ package com.example.tictactoe.view
 import com.example.tictactoe.domain.Board.Field
 import com.example.tictactoe.domain.{ GameFooterMessage, GameResult, Piece, Player }
 import zio._
+import zio.macros.accessible
 
 package object game {
   type GameView = Has[GameView.Service]
+
+  @accessible
   object GameView {
     trait Service {
       def header(result: GameResult, turn: Piece, player: Player): UIO[String]
@@ -66,14 +69,5 @@ package object game {
         override def footer(message: GameFooterMessage): UIO[String]                      = UIO.succeed("")
       }
     }
-
-    // accessors
-    def header(result: GameResult, turn: Piece, player: Player): URIO[GameView, String] =
-      ZIO.accessM(_.get.header(result, turn, player))
-
-    def content(board: Map[Field, Piece], result: GameResult): URIO[GameView, String] =
-      ZIO.accessM(_.get.content(board, result))
-
-    def footer(message: GameFooterMessage): URIO[GameView, String] = ZIO.accessM(_.get.footer(message))
   }
 }

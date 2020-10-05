@@ -5,9 +5,12 @@ import com.example.tictactoe.mode.confirm.ConfirmMode
 import com.example.tictactoe.mode.game.GameMode
 import com.example.tictactoe.mode.menu.MenuMode
 import zio._
+import zio.macros.accessible
 
 package object controller {
   type Controller = Has[Controller.Service]
+
+  @accessible
   object Controller {
     trait Service {
       def process(input: String, state: State): IO[AppError, State]
@@ -34,11 +37,5 @@ package object controller {
               }
           }
       }
-
-    // accessors
-    def process(input: String, state: State): ZIO[Controller, AppError, State] =
-      ZIO.accessM(_.get.process(input, state))
-
-    def render(state: State): URIO[Controller, String] = ZIO.accessM(_.get.render(state))
   }
 }

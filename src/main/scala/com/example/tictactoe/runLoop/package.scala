@@ -4,9 +4,12 @@ import com.example.tictactoe.controller.Controller
 import com.example.tictactoe.domain.{ AppError, State }
 import com.example.tictactoe.terminal.Terminal
 import zio._
+import zio.macros.accessible
 
 package object runLoop {
   type RunLoop = Has[RunLoop.Service]
+
+  @accessible
   object RunLoop {
     trait Service {
       def step(state: State): IO[AppError, State]
@@ -17,14 +20,11 @@ package object runLoop {
           new Service {
             override def step(state: State): IO[AppError, State] =
               for {
-                frame     <- controllerService.render(state)
-                _         <- terminalService.display(frame)
+                _         <- controllerService.render(state).flatMap(terminalService.display)
                 input     <- if (state == State.Shutdown) UIO.succeed("") else terminalService.getUserInput
                 nextState <- controllerService.process(input, state)
               } yield nextState
           }
       }
-
-    def step(state: State): ZIO[RunLoop, AppError, State] = ZIO.accessM(_.get.step(state))
   }
 }

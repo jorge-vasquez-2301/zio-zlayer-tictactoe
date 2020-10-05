@@ -3,10 +3,13 @@ package com.example.tictactoe
 import com.example.tictactoe.domain.Board.Field
 import com.example.tictactoe.domain.{ AppError, FullBoardError, Piece }
 import zio._
+import zio.macros.accessible
 import zio.random._
 
 package object opponentAi {
   type OpponentAi = Has[OpponentAi.Service]
+
+  @accessible
   object OpponentAi {
     trait Service {
       def randomMove(board: Map[Field, Piece]): IO[AppError, Field]
@@ -17,7 +20,7 @@ package object opponentAi {
           val unoccupied = (Field.all.toSet -- board.keySet).toList.sortBy(_.value)
           unoccupied.size match {
             case 0 => IO.fail(FullBoardError)
-            case n => randomService.nextInt(n).map(unoccupied(_))
+            case n => randomService.nextIntBounded(n).map(unoccupied(_))
           }
         }
       }
@@ -28,8 +31,5 @@ package object opponentAi {
         override def randomMove(board: Map[Field, Piece]): IO[AppError, Field] = IO.fail(FullBoardError)
       }
     }
-
-    // accessors
-    def randomMove(board: Map[Field, Piece]): ZIO[OpponentAi, AppError, Field] = ZIO.accessM(_.get.randomMove(board))
   }
 }

@@ -5,9 +5,12 @@ import atto.Parser
 import com.example.tictactoe.domain.Board.Field
 import com.example.tictactoe.domain.{ AppError, GameCommand, ParseError }
 import zio._
+import zio.macros.accessible
 
 package object game {
   type GameCommandParser = Has[GameCommandParser.Service]
+
+  @accessible
   object GameCommandParser {
     trait Service {
       def parse(input: String): IO[AppError, GameCommand]
@@ -37,8 +40,5 @@ package object game {
         override def parse(input: String): IO[AppError, GameCommand] = IO.fail(ParseError)
       }
     }
-
-    // accessors
-    def parse(input: String): ZIO[GameCommandParser, AppError, GameCommand] = ZIO.accessM(_.get.parse(input))
   }
 }

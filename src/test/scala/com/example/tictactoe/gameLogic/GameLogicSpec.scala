@@ -69,7 +69,7 @@ object GameLogicSpec extends DefaultRunnableSpec {
           assertM(result)(equalTo(Piece.Cross))
         }
       )
-    ).provideCustomLayer(GameLogic.live)
+    ).provideCustomLayer(GameLogicLive.layer)
 
   private val board = Map[Field, Piece](
     Field.North -> Piece.Cross,

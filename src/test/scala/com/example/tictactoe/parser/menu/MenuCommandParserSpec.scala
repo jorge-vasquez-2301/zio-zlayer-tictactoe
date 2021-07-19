@@ -25,7 +25,7 @@ object MenuCommandParserSpec extends DefaultRunnableSpec {
           assertM(result)(isLeft(equalTo(ParseError)))
         }
       }
-    ).provideCustomLayer(MenuCommandParser.live)
+    ).provideCustomLayer(MenuCommandParserLive.layer)
   )
 
   private val validCommands      = List("new game", "resume", "quit")

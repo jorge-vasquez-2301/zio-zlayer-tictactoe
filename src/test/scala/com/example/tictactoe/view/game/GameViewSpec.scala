@@ -28,7 +28,7 @@ object GameViewSpec extends DefaultRunnableSpec {
           assertM(result)(equalTo(invalidCommandMessage))
         }
       )
-    ).provideCustomLayer(GameView.live)
+    ).provideCustomLayer(GameViewLive.layer)
 
   private val emptyBoard = Map.empty[Field, Piece]
 

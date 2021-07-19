@@ -33,7 +33,7 @@ object MenuViewSpec extends DefaultRunnableSpec {
           assertM(result)(equalTo(invalidCommandMessage))
         }
       )
-    ).provideCustomLayer(MenuView.live)
+    ).provideCustomLayer(MenuViewLive.layer)
 
   private val asciiArtTicTacToe =
     """

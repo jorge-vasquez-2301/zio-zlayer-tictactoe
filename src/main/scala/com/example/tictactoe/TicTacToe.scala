@@ -1,28 +1,27 @@
 package com.example.tictactoe
 
-import com.example.tictactoe.controller.Controller
+import com.example.tictactoe.controller.ControllerLive
 import com.example.tictactoe.domain.State
-import com.example.tictactoe.gameLogic.GameLogic
-import com.example.tictactoe.mode.confirm.ConfirmMode
-import com.example.tictactoe.mode.game.GameMode
-import com.example.tictactoe.mode.menu.MenuMode
-import com.example.tictactoe.opponentAi.OpponentAi
-import com.example.tictactoe.parser.confirm.ConfirmCommandParser
-import com.example.tictactoe.parser.game.GameCommandParser
-import com.example.tictactoe.parser.menu.MenuCommandParser
-import com.example.tictactoe.runLoop.RunLoop
-import com.example.tictactoe.terminal.Terminal
-import com.example.tictactoe.view.confirm.ConfirmView
-import com.example.tictactoe.view.game.GameView
-import com.example.tictactoe.view.menu.MenuView
+import com.example.tictactoe.gameLogic.GameLogicLive
+import com.example.tictactoe.mode.confirm.ConfirmModeLive
+import com.example.tictactoe.mode.game.GameModeLive
+import com.example.tictactoe.mode.menu.MenuModeLive
+import com.example.tictactoe.opponentAi.OpponentAiLive
+import com.example.tictactoe.parser.confirm.ConfirmCommandParserLive
+import com.example.tictactoe.parser.game.GameCommandParserLive
+import com.example.tictactoe.parser.menu.MenuCommandParserLive
+import com.example.tictactoe.runLoop.{ RunLoop, RunLoopLive }
+import com.example.tictactoe.terminal.TerminalLive
+import com.example.tictactoe.view.confirm.ConfirmViewLive
+import com.example.tictactoe.view.game.GameViewLive
+import com.example.tictactoe.view.menu.MenuViewLive
 import zio._
-import zio.console.Console
-import zio.random.Random
+import zio.magic._
 
 object TicTacToe extends App {
 
-  val program: URIO[RunLoop, Unit] = {
-    def loop(state: State): URIO[RunLoop, Unit] =
+  val program: URIO[Has[RunLoop], Unit] = {
+    def loop(state: State): URIO[Has[RunLoop], Unit] =
       RunLoop
         .step(state)
         .flatMap(loop)
@@ -31,27 +30,23 @@ object TicTacToe extends App {
     loop(State.initial)
   }
 
-  def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] = program.provideLayer(prepareEnvironment).exitCode
-
-  private val prepareEnvironment: URLayer[Console with Random, RunLoop] = {
-    val confirmModeDeps: ULayer[ConfirmCommandParser with ConfirmView] =
-      ConfirmCommandParser.live ++ ConfirmView.live
-    val menuModeDeps: ULayer[MenuCommandParser with MenuView] =
-      MenuCommandParser.live ++ MenuView.live
-    val gameModeDeps: URLayer[Random, GameCommandParser with GameView with GameLogic with OpponentAi] =
-      GameCommandParser.live ++ GameView.live ++ GameLogic.live ++ OpponentAi.live
-
-    val confirmModeNoDeps: ULayer[ConfirmMode]       = confirmModeDeps >>> ConfirmMode.live
-    val menuModeNoDeps: ULayer[MenuMode]             = menuModeDeps >>> MenuMode.live
-    val gameModeRandomDep: URLayer[Random, GameMode] = gameModeDeps >>> GameMode.live
-
-    val controllerDeps: URLayer[Random, ConfirmMode with GameMode with MenuMode] =
-      confirmModeNoDeps ++ gameModeRandomDep ++ menuModeNoDeps
-
-    val controllerRandomDep: URLayer[Random, Controller] = controllerDeps >>> Controller.live
-
-    val runLoopConsoleRandomDep = (controllerRandomDep ++ Terminal.live) >>> RunLoop.live
-
-    runLoopConsoleRandomDep
-  }
+  def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] =
+    program
+      .injectCustom(
+        ControllerLive.layer,
+        GameLogicLive.layer,
+        ConfirmModeLive.layer,
+        GameModeLive.layer,
+        MenuModeLive.layer,
+        OpponentAiLive.layer,
+        ConfirmCommandParserLive.layer,
+        GameCommandParserLive.layer,
+        MenuCommandParserLive.layer,
+        RunLoopLive.layer,
+        TerminalLive.layer,
+        ConfirmViewLive.layer,
+        GameViewLive.layer,
+        MenuViewLive.layer
+      )
+      .exitCode
 }

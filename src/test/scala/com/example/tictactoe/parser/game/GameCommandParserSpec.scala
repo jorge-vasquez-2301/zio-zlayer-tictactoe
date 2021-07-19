@@ -30,7 +30,7 @@ object GameCommandParserSpec extends DefaultRunnableSpec {
           }
         }
       )
-    ).provideCustomLayer(GameCommandParser.live)
+    ).provideCustomLayer(GameCommandParserLive.layer)
 
   private val validCommands      = List(1 to 9)
   private val invalidCommandsGen = Gen.anyString.filter(!validCommands.contains(_))

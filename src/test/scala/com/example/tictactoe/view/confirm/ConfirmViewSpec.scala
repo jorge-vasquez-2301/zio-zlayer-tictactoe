@@ -33,7 +33,7 @@ object ConfirmViewSpec extends DefaultRunnableSpec {
           assertM(result)(equalTo(invalidCommandMessage))
         }
       )
-    ).provideCustomLayer(ConfirmView.live)
+    ).provideCustomLayer(ConfirmViewLive.layer)
 
   private val newGameDescription =
     """[New game]

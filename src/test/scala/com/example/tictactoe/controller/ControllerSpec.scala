@@ -2,10 +2,8 @@ package com.example.tictactoe.controller
 
 import com.example.tictactoe.domain._
 import com.example.tictactoe.mocks._
-import com.example.tictactoe.mode.confirm.ConfirmMode
-import com.example.tictactoe.mode.game.GameMode
-import com.example.tictactoe.mode.menu.MenuMode
 import zio._
+import zio.magic._
 import zio.test.Assertion._
 import zio.test._
 import zio.test.mock.Expectation._
@@ -78,14 +76,22 @@ object ControllerSpec extends DefaultRunnableSpec {
   private val renderedFrame   = "<rendered-frame>"
   private val shutdownMessage = "Shutting down..."
 
-  private val env: ULayer[Controller] =
-    (ConfirmModeMock.Process(equalTo((userInput, confirmState)), value(menuState)) ||
-      GameModeMock.Process(equalTo((userInput, gameState)), value(menuState)) ||
-      MenuModeMock.Process(equalTo((userInput, menuState)), value(confirmState)) ||
-      ConfirmModeMock.Render(equalTo(confirmState), value(renderedFrame)) ||
-      GameModeMock.Render(equalTo(gameState), value(renderedFrame)) ||
-      MenuModeMock.Render(equalTo(menuState), value(renderedFrame))) >>> Controller.live
+  private val env: ULayer[Has[Controller]] =
+    ZLayer.wire[Has[Controller]](
+      ConfirmModeMock.Process(equalTo((userInput, confirmState)), value(menuState)) ||
+        GameModeMock.Process(equalTo((userInput, gameState)), value(menuState)) ||
+        MenuModeMock.Process(equalTo((userInput, menuState)), value(confirmState)) ||
+        ConfirmModeMock.Render(equalTo(confirmState), value(renderedFrame)) ||
+        GameModeMock.Render(equalTo(gameState), value(renderedFrame)) ||
+        MenuModeMock.Render(equalTo(menuState), value(renderedFrame)),
+      ControllerLive.layer
+    )
 
-  private val dummyEnv: ULayer[Controller] =
-    (ConfirmMode.dummy ++ GameMode.dummy ++ MenuMode.dummy) >>> Controller.live
+  private val dummyEnv: ULayer[Has[Controller]] =
+    ZLayer.wire[Has[Controller]](
+      ConfirmModeMock.empty,
+      GameModeMock.empty,
+      MenuModeMock.empty,
+      ControllerLive.layer
+    )
 }

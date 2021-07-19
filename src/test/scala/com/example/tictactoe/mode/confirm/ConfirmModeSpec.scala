@@ -5,6 +5,7 @@ import com.example.tictactoe.mocks._
 import com.example.tictactoe.parser.confirm.ConfirmCommandParser
 import com.example.tictactoe.view.confirm.ConfirmView
 import zio._
+import zio.magic._
 import zio.test.Assertion._
 import zio.test._
 import zio.test.mock.Expectation._
@@ -24,14 +25,14 @@ object ConfirmModeSpec extends DefaultRunnableSpec {
     ),
     suite("render")(
       testM("returns confirm frame") {
-        val confirmViewMock: ULayer[ConfirmView] =
+        val confirmViewMock: ULayer[Has[ConfirmView]] =
           ConfirmViewMock.Header(equalTo(ConfirmAction.NewGame), value("header")) ++
             ConfirmViewMock.Content(value("content")) ++
             ConfirmViewMock.Footer(equalTo(ConfirmFooterMessage.Empty), value("footer"))
 
-        val env: ULayer[ConfirmMode] =
-          (ConfirmCommandParser.dummy ++ confirmViewMock) >>> ConfirmMode.live
-        val result = ConfirmMode.render(currentState).provideLayer(env)
+        val result = ConfirmMode
+          .render(currentState)
+          .inject(ConfirmCommandParserMock.empty, confirmViewMock, ConfirmModeLive.layer)
         assertM(result)(equalTo(renderedFrame))
       }
     )
@@ -66,13 +67,12 @@ object ConfirmModeSpec extends DefaultRunnableSpec {
     state: State.Confirm,
     updatedState: State
   ): UIO[TestResult] = {
-    val confirmCommandParserMock: ULayer[ConfirmCommandParser] = optionCommand match {
+    val confirmCommandParserMock: ULayer[Has[ConfirmCommandParser]] = optionCommand match {
       case Some(command) => ConfirmCommandParserMock.Parse(equalTo(input), value(command))
       case None          => ConfirmCommandParserMock.Parse(equalTo(input), failure(ParseError))
     }
-    val env: ULayer[ConfirmMode] =
-      (confirmCommandParserMock ++ ConfirmView.dummy) >>> ConfirmMode.live
-    val result = ConfirmMode.process(input, state).provideLayer(env)
+    val result =
+      ConfirmMode.process(input, state).inject(confirmCommandParserMock, ConfirmViewMock.empty, ConfirmModeLive.layer)
     assertM(result)(equalTo(updatedState))
   }
 }

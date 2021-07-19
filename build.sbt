@@ -1,12 +1,13 @@
-val scalaVer = "2.13.3"
+val scalaVer = "2.13.6"
 
-val attoVersion = "0.7.2"
-val zioVersion  = "1.0.3"
+val attoVersion     = "0.7.2"
+val zioVersion      = "1.0.9"
+val zioMagicVersion = "0.3.6"
 
 lazy val compileDependencies = Seq(
-  "dev.zio"      %% "zio"        % zioVersion,
-  "dev.zio"      %% "zio-macros" % zioVersion,
-  "org.tpolecat" %% "atto-core"  % attoVersion
+  "dev.zio"              %% "zio"       % zioVersion,
+  "io.github.kitlangton" %% "zio-magic" % zioMagicVersion,
+  "org.tpolecat"         %% "atto-core" % attoVersion
 ) map (_ % Compile)
 
 lazy val testDependencies = Seq(
@@ -16,7 +17,7 @@ lazy val testDependencies = Seq(
 
 lazy val settings = Seq(
   name := "zio-zlayer-tictactoe",
-  version := "2.0.0",
+  version := "3.0.0",
   scalaVersion := scalaVer,
   scalacOptions += "-Ymacro-annotations",
   libraryDependencies ++= compileDependencies ++ testDependencies,

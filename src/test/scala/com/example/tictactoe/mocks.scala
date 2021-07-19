@@ -16,42 +16,42 @@ import com.example.tictactoe.view.menu.MenuView
 import zio.test.mock._
 
 object mocks {
-  @mockable[Controller.Service]
+  @mockable[Controller]
   object ControllerMock
 
-  @mockable[ConfirmMode.Service]
+  @mockable[ConfirmMode]
   object ConfirmModeMock
 
-  @mockable[GameMode.Service]
+  @mockable[GameMode]
   object GameModeMock
 
-  @mockable[MenuMode.Service]
+  @mockable[MenuMode]
   object MenuModeMock
 
-  @mockable[ConfirmCommandParser.Service]
+  @mockable[ConfirmCommandParser]
   object ConfirmCommandParserMock
 
-  @mockable[GameCommandParser.Service]
+  @mockable[GameCommandParser]
   object GameCommandParserMock
 
-  @mockable[MenuCommandParser.Service]
+  @mockable[MenuCommandParser]
   object MenuCommandParserMock
 
-  @mockable[ConfirmView.Service]
+  @mockable[ConfirmView]
   object ConfirmViewMock
 
-  @mockable[GameView.Service]
+  @mockable[GameView]
   object GameViewMock
 
-  @mockable[MenuView.Service]
+  @mockable[MenuView]
   object MenuViewMock
 
-  @mockable[GameLogic.Service]
+  @mockable[GameLogic]
   object GameLogicMock
 
-  @mockable[OpponentAi.Service]
+  @mockable[OpponentAi]
   object OpponentAiMock
 
-  @mockable[Terminal.Service]
+  @mockable[Terminal]
   object TerminalMock
 }

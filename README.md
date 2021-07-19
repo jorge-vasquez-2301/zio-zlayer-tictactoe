@@ -1,1 +1,1 @@
-Source code for the "TicTacToe with ZLayer" blogpost
+Source code for the "Mastering modularity in ZIO with ZLayer" ebook

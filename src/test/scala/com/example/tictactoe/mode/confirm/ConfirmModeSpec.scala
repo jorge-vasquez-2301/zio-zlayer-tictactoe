@@ -5,7 +5,6 @@ import com.example.tictactoe.mocks._
 import com.example.tictactoe.parser.confirm.ConfirmCommandParser
 import com.example.tictactoe.view.confirm.ConfirmView
 import zio._
-import zio.magic._
 import zio.test.Assertion._
 import zio.test._
 import zio.test.mock.Expectation._
@@ -13,18 +12,18 @@ import zio.test.mock.Expectation._
 object ConfirmModeSpec extends DefaultRunnableSpec {
   def spec = suite("ConfirmMode")(
     suite("process")(
-      testM("yes returns confirmed state") {
+      test("yes returns confirmed state") {
         checkProcess("yes", Some(ConfirmCommand.Yes), currentState, confirmedState)
       },
-      testM("no returns declined state") {
+      test("no returns declined state") {
         checkProcess("no", Some(ConfirmCommand.No), currentState, declinedState)
       },
-      testM("any other returns current state with footer message: InvalidCommand") {
+      test("any other returns current state with footer message: InvalidCommand") {
         checkProcess("foo", None, currentState, invalidCommandState)
       }
     ),
     suite("render")(
-      testM("returns confirm frame") {
+      test("returns confirm frame") {
         val confirmViewMock: ULayer[Has[ConfirmView]] =
           ConfirmViewMock.Header(equalTo(ConfirmAction.NewGame), value("header")) ++
             ConfirmViewMock.Content(value("content")) ++

@@ -5,7 +5,6 @@ import com.example.tictactoe.domain._
 import com.example.tictactoe.mocks.{ ControllerMock, TerminalMock }
 import com.example.tictactoe.terminal.Terminal
 import zio._
-import zio.magic._
 import zio.test.Assertion._
 import zio.test._
 import zio.test.mock.Expectation._
@@ -13,7 +12,7 @@ import zio.test.mock.Expectation._
 object RunLoopSpec extends DefaultRunnableSpec {
   def spec = suite("RunLoop")(
     suite("step")(
-      testM("displays current state and transforms it based on user input") {
+      test("displays current state and transforms it based on user input") {
         val controllerMock: ULayer[Has[Controller]] =
           ControllerMock.Render(equalTo(currentState), value(renderedFrame)) ++
             ControllerMock.Process(equalTo(userInput -> currentState), value(nextState))

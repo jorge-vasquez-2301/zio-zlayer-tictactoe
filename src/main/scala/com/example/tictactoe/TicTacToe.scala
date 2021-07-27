@@ -16,7 +16,6 @@ import com.example.tictactoe.view.confirm.ConfirmViewLive
 import com.example.tictactoe.view.game.GameViewLive
 import com.example.tictactoe.view.menu.MenuViewLive
 import zio._
-import zio.magic._
 
 object TicTacToe extends App {
 

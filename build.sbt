@@ -1,13 +1,11 @@
 val scalaVer = "2.13.6"
 
-val attoVersion     = "0.7.2"
-val zioVersion      = "1.0.10"
-val zioMagicVersion = "0.3.6"
+val attoVersion = "0.7.2"
+val zioVersion  = "2.0.0-M1"
 
 lazy val compileDependencies = Seq(
-  "dev.zio"              %% "zio"       % zioVersion,
-  "io.github.kitlangton" %% "zio-magic" % zioMagicVersion,
-  "org.tpolecat"         %% "atto-core" % attoVersion
+  "dev.zio"      %% "zio"       % zioVersion,
+  "org.tpolecat" %% "atto-core" % attoVersion
 ) map (_ % Compile)
 
 lazy val testDependencies = Seq(

@@ -10,20 +10,20 @@ object GameCommandParserSpec extends DefaultRunnableSpec {
   def spec =
     suite("GameCommandParser")(
       suite("parse")(
-        testM("menu returns Menu command") {
+        test("menu returns Menu command") {
           val result = GameCommandParser.parse("menu").either
           assertM(result)(isRight(equalTo(GameCommand.Menu)))
         },
-        testM("number in range 1-9 returns Put command") {
+        test("number in range 1-9 returns Put command") {
           val results = ZIO.foreach(1 to 9) { n =>
             for {
               result        <- GameCommandParser.parse(s"$n").either
-              expectedField <- ZIO.fromOption(Field.make(n))
+              expectedField <- ZIO.from(Field.make(n))
             } yield assert(result)(isRight(equalTo(GameCommand.Put(expectedField))))
           }
-          results.flatMap(results => ZIO.fromOption(results.reduceOption(_ && _)))
+          results.flatMap(results => ZIO.from(results.reduceOption(_ && _)))
         },
-        testM("invalid command returns error") {
+        test("invalid command returns error") {
           checkM(invalidCommandsGen) { input =>
             val result = GameCommandParser.parse(input).either
             assertM(result)(isLeft(equalTo(ParseError)))

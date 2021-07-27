@@ -8,27 +8,27 @@ object ConfirmViewSpec extends DefaultRunnableSpec {
   def spec =
     suite("ConfirmView")(
       suite("header returns action description")(
-        testM("NewGame") {
+        test("NewGame") {
           val result = ConfirmView.header(ConfirmAction.NewGame)
           assertM(result)(equalTo(newGameDescription))
         },
-        testM("Quit") {
+        test("Quit") {
           val result = ConfirmView.header(ConfirmAction.Quit)
           assertM(result)(equalTo(quitDescription))
         }
       ),
       suite("content")(
-        testM("returns confirm prompt") {
+        test("returns confirm prompt") {
           val result = ConfirmView.content
           assertM(result)(equalTo(confirmPrompt))
         }
       ),
       suite("footer renders Message")(
-        testM("Empty") {
+        test("Empty") {
           val result = ConfirmView.footer(ConfirmFooterMessage.Empty)
           assertM(result)(equalTo(emptyMessage))
         },
-        testM("InvalidCommand") {
+        test("InvalidCommand") {
           val result = ConfirmView.footer(ConfirmFooterMessage.InvalidCommand)
           assertM(result)(equalTo(invalidCommandMessage))
         }

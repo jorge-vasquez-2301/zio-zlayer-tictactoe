@@ -3,8 +3,6 @@ package com.example.tictactoe.opponentAi
 import com.example.tictactoe.domain.Board.Field
 import com.example.tictactoe.domain.{ FullBoardError, Piece }
 import zio._
-import zio.magic._
-import zio.random._
 import zio.test.Assertion._
 import zio.test._
 import zio.test.mock.Expectation._
@@ -31,8 +29,8 @@ object OpponentAiSpec extends DefaultRunnableSpec {
   )
 
   def spec = suite("OpponentAi")(
-    testM("randomMove chooses a random, unoccupied field") {
-      val randomMock: ULayer[Has[Random.Service]] = MockRandom.NextIntBounded(equalTo(5), value(1))
+    test("randomMove chooses a random, unoccupied field") {
+      val randomMock: ULayer[Has[Random]] = MockRandom.NextIntBounded(equalTo(5), value(1))
       val result = OpponentAi
         .randomMove(board)
         .either
@@ -42,7 +40,7 @@ object OpponentAiSpec extends DefaultRunnableSpec {
         )
       assertM(result)(isRight(equalTo(Field.NorthEast)))
     },
-    testM("randomMove fails when board is fully occupied") {
+    test("randomMove fails when board is fully occupied") {
       val result = OpponentAi.randomMove(fullBoard).either.provideCustomLayer(OpponentAiLive.layer)
       assertM(result)(isLeft(equalTo(FullBoardError)))
     }

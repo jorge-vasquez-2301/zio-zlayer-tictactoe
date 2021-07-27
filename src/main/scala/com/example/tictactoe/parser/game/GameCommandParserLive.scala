@@ -8,7 +8,7 @@ import zio._
 
 final case class GameCommandParserLive() extends GameCommandParser {
   def parse(input: String): IO[AppError, GameCommand] =
-    ZIO.fromOption(command.parse(input).done.option).orElseFail(ParseError)
+    ZIO.from(command.parse(input).done.option).orElseFail(ParseError)
   private lazy val command: Parser[GameCommand] =
     choice(menu, put)
   private lazy val menu: Parser[GameCommand] =

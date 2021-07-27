@@ -10,42 +10,42 @@ object GameLogicSpec extends DefaultRunnableSpec {
   def spec =
     suite("GameLogic")(
       suite("putPiece")(
-        testM("returns updated board if field is unoccupied") {
+        test("returns updated board if field is unoccupied") {
           val result = GameLogic.putPiece(board, Field.East, Piece.Cross).either
           assertM(result)(isRight(equalTo(updatedBoard)))
         },
-        testM("fails if field is occupied") {
+        test("fails if field is occupied") {
           val result = GameLogic.putPiece(board, Field.South, Piece.Cross).either
           assertM(result)(isLeft(equalTo(FieldAlreadyOccupiedError)))
         }
       ),
       suite("gameResult")(
-        testM("returns GameResult.Win(Piece.Cross) if cross won") {
+        test("returns GameResult.Win(Piece.Cross) if cross won") {
           val result = GameLogic.gameResult(crossWinBoard)
           assertM(result)(equalTo(GameResult.Win(Piece.Cross)))
         },
-        testM("returns GameResult.Win(Piece.Nought) if nought won") {
+        test("returns GameResult.Win(Piece.Nought) if nought won") {
           val result = GameLogic.gameResult(noughtWinBoard)
           assertM(result)(equalTo(GameResult.Win(Piece.Nought)))
         },
-        testM("returns GameResult.Draw if the board is full and there are no winners") {
+        test("returns GameResult.Draw if the board is full and there are no winners") {
           val result = GameLogic.gameResult(drawBoard)
           assertM(result)(equalTo(GameResult.Draw))
         },
-        testM("returns GameResult.Ongoing if the board is not full and there are no winners") {
+        test("returns GameResult.Ongoing if the board is not full and there are no winners") {
           val result = GameLogic.gameResult(ongoingBoard)
           assertM(result)(equalTo(GameResult.Ongoing))
         },
-        testM("returns GameResult.Ongoing if the board is empty") {
+        test("returns GameResult.Ongoing if the board is empty") {
           val result = GameLogic.gameResult(emptyBoard)
           assertM(result)(equalTo(GameResult.Ongoing))
         },
-        testM("dies with IllegalStateException if both players are in winning position") {
+        test("dies with IllegalStateException if both players are in winning position") {
           val result = GameLogic.gameResult(bothWinBoard).absorb.either
           assertM(result)(isLeft(isSubtype[IllegalStateException](anything)))
 
         },
-        testM("returns GameResult.Win for all possible 3-field straight lines")(
+        test("returns GameResult.Win for all possible 3-field straight lines")(
           for {
             wins <- Board.wins
             results <- ZIO.foreach(wins) { fields =>
@@ -54,17 +54,17 @@ object GameLogicSpec extends DefaultRunnableSpec {
                       }
           } yield assert(results)(forall(equalTo(GameResult.Win(Piece.Cross))))
         ),
-        testM("returns GameResult.Win(Piece.Cross) for example game") {
+        test("returns GameResult.Win(Piece.Cross) for example game") {
           val result = GameLogic.gameResult(exampleGameBoard)
           assertM(result)(equalTo(GameResult.Win(Piece.Cross)))
         }
       ),
       suite("nextTurn")(
-        testM("returns Piece.Nought given Piece.Cross") {
+        test("returns Piece.Nought given Piece.Cross") {
           val result = GameLogic.nextTurn(Piece.Cross)
           assertM(result)(equalTo(Piece.Nought))
         },
-        testM("returns Piece.Cross given Piece.Nought") {
+        test("returns Piece.Cross given Piece.Nought") {
           val result = GameLogic.nextTurn(Piece.Nought)
           assertM(result)(equalTo(Piece.Cross))
         }

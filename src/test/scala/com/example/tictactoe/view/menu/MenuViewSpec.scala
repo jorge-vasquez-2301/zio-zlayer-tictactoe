@@ -8,27 +8,27 @@ object MenuViewSpec extends DefaultRunnableSpec {
   def spec =
     suite("MenuView")(
       suite("header")(
-        testM("returns ascii art TicTacToe") {
+        test("returns ascii art TicTacToe") {
           val result = MenuView.header
           assertM(result)(equalTo(asciiArtTicTacToe))
         }
       ),
       suite("content returns list of commands")(
-        testM("including resume if suspended") {
+        test("including resume if suspended") {
           val result = MenuView.content(true)
           assertM(result)(equalTo(suspendedCommands))
         },
-        testM("excluding resume if not suspended") {
+        test("excluding resume if not suspended") {
           val result = MenuView.content(false)
           assertM(result)(equalTo(notSuspendedCommands))
         }
       ),
       suite("footer renders Message")(
-        testM("Empty") {
+        test("Empty") {
           val result = MenuView.footer(MenuFooterMessage.Empty)
           assertM(result)(equalTo(emptyMessage))
         },
-        testM("InvalidCommand") {
+        test("InvalidCommand") {
           val result = MenuView.footer(MenuFooterMessage.InvalidCommand)
           assertM(result)(equalTo(invalidCommandMessage))
         }

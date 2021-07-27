@@ -9,21 +9,21 @@ object GameViewSpec extends DefaultRunnableSpec {
   def spec =
     suite("GameView")(
       suite("content renders")(
-        testM("empty board") {
+        test("empty board") {
           val result = GameView.content(emptyBoard, GameResult.Ongoing)
           assertM(result)(equalTo(emptyBoardView))
         },
-        testM("non empty board") {
+        test("non empty board") {
           val result = GameView.content(nonEmptyBoard, GameResult.Ongoing)
           assertM(result)(equalTo(nonEmptyBoardView))
         }
       ),
       suite("footer renders message")(
-        testM("Empty") {
+        test("Empty") {
           val result = GameView.footer(GameFooterMessage.Empty)
           assertM(result)(equalTo(emptyMessage))
         },
-        testM("InvalidCommand") {
+        test("InvalidCommand") {
           val result = GameView.footer(GameFooterMessage.InvalidCommand)
           assertM(result)(equalTo(invalidCommandMessage))
         }

@@ -62,7 +62,7 @@ object Board {
 
     ZIO
       .foreach(horizontalWins ++ verticalWins ++ diagonalWins)(
-        ZIO.foreach(_)(value => ZIO.fromOption(Field.make(value))).map(_.toSet)
+        ZIO.foreach(_)(value => ZIO.from(Field.make(value))).map(_.toSet)
       )
       .map(_.toSet)
       .orDieWith(_ => new IllegalStateException)

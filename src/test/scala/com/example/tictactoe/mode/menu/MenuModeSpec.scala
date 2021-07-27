@@ -6,7 +6,6 @@ import com.example.tictactoe.mocks.{ MenuCommandParserMock, MenuViewMock }
 import com.example.tictactoe.parser.menu.MenuCommandParser
 import com.example.tictactoe.view.menu.MenuView
 import zio._
-import zio.magic._
 import zio.test.Assertion._
 import zio.test._
 import zio.test.mock.Expectation._
@@ -15,30 +14,30 @@ object MenuModeSpec extends DefaultRunnableSpec {
   def spec = suite("MenuMode")(
     suite("process")(
       suite("game in progress")(
-        testM("new game returns confirm state") {
+        test("new game returns confirm state") {
           checkProcess("new game", MenuCommand.NewGame, suspendedMenuState, confirmNewGameState)
         },
-        testM("resume returns current game state") {
+        test("resume returns current game state") {
           checkProcess("resume", MenuCommand.Resume, suspendedMenuState, runningGameState)
         },
-        testM("quit returns confirm state") {
+        test("quit returns confirm state") {
           checkProcess("quit", MenuCommand.Quit, suspendedMenuState, confirmQuitState)
         }
       ),
       suite("no game in progress")(
-        testM("new game returns new game state") {
+        test("new game returns new game state") {
           checkProcess("new game", MenuCommand.NewGame, menuState, newGameState)
         },
-        testM("resume returns current state with Message.InvalidCommand") {
+        test("resume returns current state with Message.InvalidCommand") {
           checkProcess("resume", MenuCommand.Resume, menuState, invalidCommandState)
         },
-        testM("quit returns shutdown state") {
+        test("quit returns shutdown state") {
           checkProcess("quit", MenuCommand.Quit, menuState, State.Shutdown)
         }
       )
     ),
     suite("render")(
-      testM("game in progress returns suspended menu frame") {
+      test("game in progress returns suspended menu frame") {
         checkRender(
           suspendedMenuState,
           MenuViewMock.Header(value("header")) ++
@@ -46,7 +45,7 @@ object MenuModeSpec extends DefaultRunnableSpec {
             MenuViewMock.Footer(equalTo(MenuFooterMessage.Empty), value("footer"))
         )
       },
-      testM("no game in progress returns default menu frame") {
+      test("no game in progress returns default menu frame") {
         checkRender(
           menuState,
           MenuViewMock.Header(value("header")) ++

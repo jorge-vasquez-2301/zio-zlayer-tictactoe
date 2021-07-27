@@ -6,7 +6,6 @@ import com.example.tictactoe.gameLogic.GameLogic
 import com.example.tictactoe.mocks.{ GameCommandParserMock, GameLogicMock, GameViewMock, OpponentAiMock }
 import com.example.tictactoe.parser.game.GameCommandParser
 import zio._
-import zio.magic._
 import zio.test.Assertion._
 import zio.test._
 import zio.test.mock.Expectation._
@@ -14,7 +13,7 @@ import zio.test.mock.Expectation._
 object GameModeSpec extends DefaultRunnableSpec {
   def spec = suite("GameMode")(
     suite("process")(
-      testM("menu returns suspended menu state") {
+      test("menu returns suspended menu state") {
         val gameCommandParserMock: ULayer[Has[GameCommandParser]] =
           GameCommandParserMock.Parse(equalTo("menu"), value(GameCommand.Menu))
         val result = GameMode
@@ -29,7 +28,7 @@ object GameModeSpec extends DefaultRunnableSpec {
         assertM(result)(equalTo(suspendedMenuState))
       },
       suite("put <field>")(
-        testM("returns current state with GameMessage.FieldOccupied if field is occupied") {
+        test("returns current state with GameMessage.FieldOccupied if field is occupied") {
           val gameCommandParserMock: ULayer[Has[GameCommandParser]] =
             GameCommandParserMock.Parse(equalTo("put 2"), value(GameCommand.Put(Field.North)))
           val gameLogicMock: ULayer[Has[GameLogic]] =
@@ -46,7 +45,7 @@ object GameModeSpec extends DefaultRunnableSpec {
             )
           assertM(result)(equalTo(fieldOccupiedState))
         },
-        testM("returns state with added piece and turn advanced to next player if field is unoccupied") {
+        test("returns state with added piece and turn advanced to next player if field is unoccupied") {
           val gameCommandParserMock: ULayer[Has[GameCommandParser]] =
             GameCommandParserMock.Parse(equalTo("put 6"), value(GameCommand.Put(Field.East)))
           val gameLogicMock: ULayer[Has[GameLogic]] =
@@ -67,7 +66,7 @@ object GameModeSpec extends DefaultRunnableSpec {
             )
           assertM(result)(equalTo(pieceAddedEastState))
         },
-        testM("otherwise returns current state with GameMessage.InvalidCommand") {
+        test("otherwise returns current state with GameMessage.InvalidCommand") {
           val gameCommandParserMock: ULayer[Has[GameCommandParser]] =
             GameCommandParserMock.Parse(equalTo("foo"), failure(ParseError))
           val result = GameMode

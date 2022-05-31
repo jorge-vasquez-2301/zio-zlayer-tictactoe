@@ -13,7 +13,7 @@ import com.example.tictactoe.terminal.Terminal
 import com.example.tictactoe.view.confirm.ConfirmView
 import com.example.tictactoe.view.game.GameView
 import com.example.tictactoe.view.menu.MenuView
-import zio.test.mock._
+import zio.mock._
 
 object mocks {
   @mockable[Controller]

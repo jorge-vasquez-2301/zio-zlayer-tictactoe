@@ -13,5 +13,5 @@ final case class MenuCommandParserLive() extends MenuCommandParser {
     }
 }
 object MenuCommandParserLive {
-  val layer: ULayer[Has[MenuCommandParser]] = (MenuCommandParserLive.apply _).toLayer
+  val layer: ULayer[MenuCommandParser] = ZLayer.succeed(MenuCommandParserLive())
 }

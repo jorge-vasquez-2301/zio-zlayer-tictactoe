@@ -21,5 +21,5 @@ final case class GameCommandParserLive() extends GameCommandParser {
     }
 }
 object GameCommandParserLive {
-  val layer: ULayer[Has[GameCommandParser]] = (GameCommandParserLive.apply _).toLayer
+  val layer: ULayer[GameCommandParser] = ZLayer.succeed(GameCommandParserLive())
 }

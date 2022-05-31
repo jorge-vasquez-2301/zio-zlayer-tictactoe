@@ -2,30 +2,32 @@ package com.example.tictactoe.parser.confim
 
 import com.example.tictactoe.domain.{ ConfirmCommand, ParseError }
 import com.example.tictactoe.parser.confirm.{ ConfirmCommandParser, ConfirmCommandParserLive }
-import zio.test.Assertion._
 import zio.test._
 
-object ConfirmCommandParserSpec extends DefaultRunnableSpec {
+object ConfirmCommandParserSpec extends ZIOSpecDefault {
   def spec =
     suite("ConfirmCommandParser")(
       suite("parse")(
         test("yes returns Yes command") {
-          val result = ConfirmCommandParser.parse("yes")
-          assertM(result.either)(isRight(equalTo(ConfirmCommand.Yes)))
+          for {
+            result <- ConfirmCommandParser.parse("yes").either.right
+          } yield assertTrue(result == ConfirmCommand.Yes)
         },
         test("no returns No command") {
-          val result = ConfirmCommandParser.parse("no")
-          assertM(result.either)(isRight(equalTo(ConfirmCommand.No)))
+          for {
+            result <- ConfirmCommandParser.parse("no").either.right
+          } yield assertTrue(result == ConfirmCommand.No)
         },
         test("any other input returns Invalid command") {
-          checkM(invalidCommandsGen) { input =>
-            val result = ConfirmCommandParser.parse(input)
-            assertM(result.either)(isLeft(equalTo(ParseError)))
+          check(invalidCommandsGen) { input =>
+            for {
+              result <- ConfirmCommandParser.parse(input).either.left
+            } yield assertTrue(result == ParseError)
           }
         }
       )
-    ).provideCustomLayer(ConfirmCommandParserLive.layer)
+    ).provideLayer(ConfirmCommandParserLive.layer)
 
   private val validCommands      = List("yes", "no")
-  private val invalidCommandsGen = Gen.anyString.filter(!validCommands.contains(_))
+  private val invalidCommandsGen = Gen.string.filter(!validCommands.contains(_))
 }

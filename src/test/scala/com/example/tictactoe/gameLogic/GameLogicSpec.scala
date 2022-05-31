@@ -3,47 +3,53 @@ package com.example.tictactoe.gameLogic
 import com.example.tictactoe.domain.Board.Field
 import com.example.tictactoe.domain.{ Board, FieldAlreadyOccupiedError, GameResult, Piece }
 import zio._
-import zio.test.Assertion._
 import zio.test._
 
-object GameLogicSpec extends DefaultRunnableSpec {
+object GameLogicSpec extends ZIOSpecDefault {
   def spec =
     suite("GameLogic")(
       suite("putPiece")(
         test("returns updated board if field is unoccupied") {
-          val result = GameLogic.putPiece(board, Field.East, Piece.Cross).either
-          assertM(result)(isRight(equalTo(updatedBoard)))
+          for {
+            result <- GameLogic.putPiece(board, Field.East, Piece.Cross).either.right
+          } yield assertTrue(result == updatedBoard)
         },
         test("fails if field is occupied") {
-          val result = GameLogic.putPiece(board, Field.South, Piece.Cross).either
-          assertM(result)(isLeft(equalTo(FieldAlreadyOccupiedError)))
+          for {
+            result <- GameLogic.putPiece(board, Field.South, Piece.Cross).either.left
+          } yield assertTrue(result == FieldAlreadyOccupiedError)
         }
       ),
       suite("gameResult")(
         test("returns GameResult.Win(Piece.Cross) if cross won") {
-          val result = GameLogic.gameResult(crossWinBoard)
-          assertM(result)(equalTo(GameResult.Win(Piece.Cross)))
+          for {
+            result <- GameLogic.gameResult(crossWinBoard)
+          } yield assertTrue(result == GameResult.Win(Piece.Cross))
         },
         test("returns GameResult.Win(Piece.Nought) if nought won") {
-          val result = GameLogic.gameResult(noughtWinBoard)
-          assertM(result)(equalTo(GameResult.Win(Piece.Nought)))
+          for {
+            result <- GameLogic.gameResult(noughtWinBoard)
+          } yield assertTrue(result == GameResult.Win(Piece.Nought))
         },
         test("returns GameResult.Draw if the board is full and there are no winners") {
-          val result = GameLogic.gameResult(drawBoard)
-          assertM(result)(equalTo(GameResult.Draw))
+          for {
+            result <- GameLogic.gameResult(drawBoard)
+          } yield assertTrue(result == GameResult.Draw)
         },
         test("returns GameResult.Ongoing if the board is not full and there are no winners") {
-          val result = GameLogic.gameResult(ongoingBoard)
-          assertM(result)(equalTo(GameResult.Ongoing))
+          for {
+            result <- GameLogic.gameResult(ongoingBoard)
+          } yield assertTrue(result == GameResult.Ongoing)
         },
         test("returns GameResult.Ongoing if the board is empty") {
-          val result = GameLogic.gameResult(emptyBoard)
-          assertM(result)(equalTo(GameResult.Ongoing))
+          for {
+            result <- GameLogic.gameResult(emptyBoard)
+          } yield assertTrue(result == GameResult.Ongoing)
         },
         test("dies with IllegalStateException if both players are in winning position") {
-          val result = GameLogic.gameResult(bothWinBoard).absorb.either
-          assertM(result)(isLeft(isSubtype[IllegalStateException](anything)))
-
+          for {
+            result <- GameLogic.gameResult(bothWinBoard).absorb.either.left
+          } yield assertTrue(result.isInstanceOf[IllegalStateException])
         },
         test("returns GameResult.Win for all possible 3-field straight lines")(
           for {
@@ -52,24 +58,27 @@ object GameLogicSpec extends DefaultRunnableSpec {
                         val board: Map[Field, Piece] = fields.map(_ -> Piece.Cross).toMap
                         GameLogic.gameResult(board)
                       }
-          } yield assert(results)(forall(equalTo(GameResult.Win(Piece.Cross))))
+          } yield assertTrue(results.forall(_ == GameResult.Win(Piece.Cross)))
         ),
         test("returns GameResult.Win(Piece.Cross) for example game") {
-          val result = GameLogic.gameResult(exampleGameBoard)
-          assertM(result)(equalTo(GameResult.Win(Piece.Cross)))
+          for {
+            result <- GameLogic.gameResult(exampleGameBoard)
+          } yield assertTrue(result == GameResult.Win(Piece.Cross))
         }
       ),
       suite("nextTurn")(
         test("returns Piece.Nought given Piece.Cross") {
-          val result = GameLogic.nextTurn(Piece.Cross)
-          assertM(result)(equalTo(Piece.Nought))
+          for {
+            result <- GameLogic.nextTurn(Piece.Cross)
+          } yield assertTrue(result == Piece.Nought)
         },
         test("returns Piece.Cross given Piece.Nought") {
-          val result = GameLogic.nextTurn(Piece.Nought)
-          assertM(result)(equalTo(Piece.Cross))
+          for {
+            result <- GameLogic.nextTurn(Piece.Nought)
+          } yield assertTrue(result == Piece.Cross)
         }
       )
-    ).provideCustomLayer(GameLogicLive.layer)
+    ).provideLayer(GameLogicLive.layer)
 
   private val board = Map[Field, Piece](
     Field.North -> Piece.Cross,

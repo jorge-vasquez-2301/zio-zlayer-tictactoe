@@ -1,14 +1,10 @@
 package com.example.tictactoe.opponentAi
 
 import com.example.tictactoe.domain.Board.Field
-import com.example.tictactoe.domain.{ FullBoardError, Piece }
-import zio._
-import zio.test.Assertion._
+import com.example.tictactoe.domain.Piece
 import zio.test._
-import zio.test.mock.Expectation._
-import zio.test.mock._
 
-object OpponentAiSpec extends DefaultRunnableSpec {
+object OpponentAiSpec extends ZIOSpecDefault {
   private val board = Map[Field, Piece](
     Field.NorthWest -> Piece.Cross,
     Field.West      -> Piece.Nought,
@@ -28,21 +24,18 @@ object OpponentAiSpec extends DefaultRunnableSpec {
     Field.SouthEast -> Piece.Nought
   )
 
-  def spec = suite("OpponentAi")(
-    test("randomMove chooses a random, unoccupied field") {
-      val randomMock: ULayer[Has[Random]] = MockRandom.NextIntBounded(equalTo(5), value(1))
-      val result = OpponentAi
-        .randomMove(board)
-        .either
-        .inject(
-          randomMock,
-          OpponentAiLive.layer
-        )
-      assertM(result)(isRight(equalTo(Field.NorthEast)))
-    },
-    test("randomMove fails when board is fully occupied") {
-      val result = OpponentAi.randomMove(fullBoard).either.provideCustomLayer(OpponentAiLive.layer)
-      assertM(result)(isLeft(equalTo(FullBoardError)))
-    }
-  )
+  def spec =
+    suite("OpponentAi")(
+      test("randomMove chooses a random, unoccupied field") {
+        for {
+          _      <- TestRandom.feedInts(1)
+          result <- OpponentAi.randomMove(board)
+        } yield assertTrue(result == Field.NorthEast)
+      },
+      test("randomMove dies when board is fully occupied") {
+        for {
+          result <- OpponentAi.randomMove(fullBoard).absorb.either.left
+        } yield assertTrue(result.isInstanceOf[IllegalStateException])
+      }
+    ).provide(OpponentAiLive.layer)
 }

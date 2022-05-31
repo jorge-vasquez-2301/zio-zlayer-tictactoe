@@ -7,8 +7,8 @@ import zio._
 final case class GameLogicLive() extends GameLogic {
   def putPiece(board: Map[Field, Piece], field: Field, piece: Piece): IO[AppError, Map[Field, Piece]] =
     board.get(field) match {
-      case None => IO.succeed(board.updated(field, piece))
-      case _    => IO.fail(FieldAlreadyOccupiedError)
+      case None => ZIO.succeed(board.updated(field, piece))
+      case _    => ZIO.fail(FieldAlreadyOccupiedError)
     }
 
   def gameResult(board: Map[Field, Piece]): UIO[GameResult] = {
@@ -30,18 +30,18 @@ final case class GameLogicLive() extends GameLogic {
                          "It should not be possible for both players to meet winning conditions."
                        )
                      }
-                   else if (crossWin) UIO.succeed(GameResult.Win(Piece.Cross))
-                   else if (noughtWin) UIO.succeed(GameResult.Win(Piece.Nought))
-                   else if (boardFull) UIO.succeed(GameResult.Draw)
-                   else UIO.succeed(GameResult.Ongoing)
+                   else if (crossWin) ZIO.succeed(GameResult.Win(Piece.Cross))
+                   else if (noughtWin) ZIO.succeed(GameResult.Win(Piece.Nought))
+                   else if (boardFull) ZIO.succeed(GameResult.Draw)
+                   else ZIO.succeed(GameResult.Ongoing)
     } yield gameResult
   }
 
-  def nextTurn(currentTurn: Piece): UIO[Piece] = UIO.succeed(currentTurn) map {
+  def nextTurn(currentTurn: Piece): UIO[Piece] = ZIO.succeed(currentTurn) map {
     case Piece.Cross  => Piece.Nought
     case Piece.Nought => Piece.Cross
   }
 }
 object GameLogicLive {
-  val layer: ULayer[Has[GameLogic]] = (GameLogicLive.apply _).toLayer
+  val layer: ULayer[GameLogic] = ZLayer.succeed(GameLogicLive())
 }

@@ -4,36 +4,41 @@ import com.example.tictactoe.domain.{ ConfirmAction, ConfirmFooterMessage }
 import zio.test.Assertion._
 import zio.test._
 
-object ConfirmViewSpec extends DefaultRunnableSpec {
+object ConfirmViewSpec extends ZIOSpecDefault {
   def spec =
     suite("ConfirmView")(
       suite("header returns action description")(
         test("NewGame") {
-          val result = ConfirmView.header(ConfirmAction.NewGame)
-          assertM(result)(equalTo(newGameDescription))
+          for {
+            result <- ConfirmView.header(ConfirmAction.NewGame)
+          } yield assertTrue(result == newGameDescription)
         },
         test("Quit") {
-          val result = ConfirmView.header(ConfirmAction.Quit)
-          assertM(result)(equalTo(quitDescription))
+          for {
+            result <- ConfirmView.header(ConfirmAction.Quit)
+          } yield assertTrue(result == quitDescription)
         }
       ),
       suite("content")(
         test("returns confirm prompt") {
-          val result = ConfirmView.content
-          assertM(result)(equalTo(confirmPrompt))
+          for {
+            result <- ConfirmView.content
+          } yield assertTrue(result == confirmPrompt)
         }
       ),
       suite("footer renders Message")(
         test("Empty") {
-          val result = ConfirmView.footer(ConfirmFooterMessage.Empty)
-          assertM(result)(equalTo(emptyMessage))
+          for {
+            result <- ConfirmView.footer(ConfirmFooterMessage.Empty)
+          } yield assertTrue(result == emptyMessage)
         },
         test("InvalidCommand") {
-          val result = ConfirmView.footer(ConfirmFooterMessage.InvalidCommand)
-          assertM(result)(equalTo(invalidCommandMessage))
+          for {
+            result <- ConfirmView.footer(ConfirmFooterMessage.InvalidCommand)
+          } yield assertTrue(result == invalidCommandMessage)
         }
       )
-    ).provideCustomLayer(ConfirmViewLive.layer)
+    ).provideLayer(ConfirmViewLive.layer)
 
   private val newGameDescription =
     """[New game]

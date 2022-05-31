@@ -6,11 +6,10 @@ import com.example.tictactoe.mocks.{ MenuCommandParserMock, MenuViewMock }
 import com.example.tictactoe.parser.menu.MenuCommandParser
 import com.example.tictactoe.view.menu.MenuView
 import zio._
-import zio.test.Assertion._
+import zio.mock._
 import zio.test._
-import zio.test.mock.Expectation._
 
-object MenuModeSpec extends DefaultRunnableSpec {
+object MenuModeSpec extends ZIOSpecDefault {
   def spec = suite("MenuMode")(
     suite("process")(
       suite("game in progress")(
@@ -38,20 +37,10 @@ object MenuModeSpec extends DefaultRunnableSpec {
     ),
     suite("render")(
       test("game in progress returns suspended menu frame") {
-        checkRender(
-          suspendedMenuState,
-          MenuViewMock.Header(value("header")) ++
-            MenuViewMock.Content(isTrue, value("content")) ++
-            MenuViewMock.Footer(equalTo(MenuFooterMessage.Empty), value("footer"))
-        )
+        checkRender(suspendedMenuState, Assertion.isTrue)
       },
       test("no game in progress returns default menu frame") {
-        checkRender(
-          menuState,
-          MenuViewMock.Header(value("header")) ++
-            MenuViewMock.Content(isFalse, value("content")) ++
-            MenuViewMock.Footer(equalTo(MenuFooterMessage.Empty), value("footer"))
-        )
+        checkRender(menuState, Assertion.isFalse)
       }
     )
   )
@@ -99,26 +88,33 @@ object MenuModeSpec extends DefaultRunnableSpec {
     state: State.Menu,
     updatedState: State
   ): UIO[TestResult] = {
-    val menuCommandParserMock: ULayer[Has[MenuCommandParser]] =
-      MenuCommandParserMock.Parse(equalTo(input), value(command))
-    val result = MenuMode
-      .process(input, state)
-      .inject(
-        menuCommandParserMock,
-        MenuViewMock.empty,
-        MenuModeLive.layer
-      )
-    assertM(result)(equalTo(updatedState))
+    val menuCommandParserMock: ULayer[MenuCommandParser] =
+      MenuCommandParserMock.Parse(Assertion.equalTo(input), Expectation.value(command))
+
+    for {
+      result <- MenuMode
+                 .process(input, state)
+                 .provide(
+                   menuCommandParserMock,
+                   MenuViewMock.empty,
+                   MenuModeLive.layer
+                 )
+    } yield assertTrue(result == updatedState)
   }
 
-  private def checkRender(state: State.Menu, menuViewMock: ULayer[Has[MenuView]]): UIO[TestResult] = {
-    val result = MenuMode
-      .render(state)
-      .inject(
-        MenuCommandParserMock.empty,
-        menuViewMock,
-        MenuModeLive.layer
-      )
-    assertM(result)(equalTo(renderedFrame))
+  private def checkRender(state: State.Menu, menuSuspendedAssertion: Assertion[Boolean]): UIO[TestResult] = {
+    val menuViewMock: ULayer[MenuView] = MenuViewMock.Header(Expectation.value("header")) ++
+      MenuViewMock.Content(menuSuspendedAssertion, Expectation.value("content")) ++
+      MenuViewMock.Footer(Assertion.equalTo(MenuFooterMessage.Empty), Expectation.value("footer"))
+
+    for {
+      result <- MenuMode
+                 .render(state)
+                 .provide(
+                   MenuCommandParserMock.empty,
+                   menuViewMock,
+                   MenuModeLive.layer
+                 )
+    } yield assertTrue(result == renderedFrame)
   }
 }

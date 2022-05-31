@@ -2,33 +2,41 @@ package com.example.tictactoe.view.game
 
 import com.example.tictactoe.domain.Board.Field
 import com.example.tictactoe.domain.{ GameFooterMessage, GameResult, Piece }
-import zio.test.Assertion._
+import zio.ZIO
 import zio.test._
 
-object GameViewSpec extends DefaultRunnableSpec {
+object GameViewSpec extends ZIOSpecDefault {
   def spec =
     suite("GameView")(
       suite("content renders")(
         test("empty board") {
-          val result = GameView.content(emptyBoard, GameResult.Ongoing)
-          assertM(result)(equalTo(emptyBoardView))
+          for {
+            result <- GameView.content(emptyBoard, GameResult.Ongoing)
+            _      <- ZIO.debug("result diff emptyBoardView")
+            _      <- ZIO.debug(result diff emptyBoardView)
+            _      <- ZIO.debug("emptyBoardView diff result")
+            _      <- ZIO.debug(emptyBoardView diff result)
+          } yield assertTrue(result == emptyBoardView)
         },
         test("non empty board") {
-          val result = GameView.content(nonEmptyBoard, GameResult.Ongoing)
-          assertM(result)(equalTo(nonEmptyBoardView))
+          for {
+            result <- GameView.content(nonEmptyBoard, GameResult.Ongoing)
+          } yield assertTrue(result == nonEmptyBoardView)
         }
       ),
       suite("footer renders message")(
         test("Empty") {
-          val result = GameView.footer(GameFooterMessage.Empty)
-          assertM(result)(equalTo(emptyMessage))
+          for {
+            result <- GameView.footer(GameFooterMessage.Empty)
+          } yield assertTrue(result == emptyMessage)
         },
         test("InvalidCommand") {
-          val result = GameView.footer(GameFooterMessage.InvalidCommand)
-          assertM(result)(equalTo(invalidCommandMessage))
+          for {
+            result <- GameView.footer(GameFooterMessage.InvalidCommand)
+          } yield assertTrue(result == invalidCommandMessage)
         }
       )
-    ).provideCustomLayer(GameViewLive.layer)
+    ).provideLayer(GameViewLive.layer)
 
   private val emptyBoard = Map.empty[Field, Piece]
 

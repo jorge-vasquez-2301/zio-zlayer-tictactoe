@@ -5,18 +5,18 @@ import zio._
 
 final case class MenuViewLive() extends MenuView {
   val header: UIO[String] =
-    UIO.succeed(
+    ZIO.succeed(
       """
-        | _____   __                             _______     ______          ______         
-        |/__  /  / /   ____ ___  _____  _____   /_  __(_)___/_  __/___ _____/_  __/___  ___ 
+        | _____   __                             _______     ______          ______
+        |/__  /  / /   ____ ___  _____  _____   /_  __(_)___/_  __/___ _____/_  __/___  ___
         |  / /  / /   / __ `/ / / / _ \/ ___/    / / / / ___// / / __ `/ ___// / / __ \/ _ \
         | / /__/ /___/ /_/ / /_/ /  __/ /       / / / / /__ / / / /_/ / /__ / / / /_/ /  __/
-        |/____/_____/\__,_/\__, /\___/_/       /_/ /_/\___//_/  \__,_/\___//_/  \____/\___/ 
-        |                 /____/                                                            
+        |/____/_____/\__,_/\__, /\___/_/       /_/ /_/\___//_/  \__,_/\___//_/  \____/\___/
+        |                 /____/
         |""".stripMargin
     )
   def content(isSuspended: Boolean): UIO[String] =
-    UIO.succeed {
+    ZIO.succeed {
       val commands =
         if (isSuspended) List("new game", "resume", "quit")
         else List("new game", "quit")
@@ -25,11 +25,11 @@ final case class MenuViewLive() extends MenuView {
         .mkString("\n")
     }
   def footer(message: MenuFooterMessage): UIO[String] =
-    UIO.succeed(message) map {
+    ZIO.succeed(message) map {
       case MenuFooterMessage.Empty          => ""
       case MenuFooterMessage.InvalidCommand => "Invalid command. Try again."
     }
 }
 object MenuViewLive {
-  val layer: ULayer[Has[MenuView]] = (MenuViewLive.apply _).toLayer
+  val layer: ULayer[MenuView] = ZLayer.succeed(MenuViewLive())
 }

@@ -37,7 +37,7 @@ final case class MenuModeLive(menuCommandParser: MenuCommandParser, menuView: Me
             case None => State.Shutdown
           }
       }
-      .orElse(UIO.succeed(state.copy(footerMessage = MenuFooterMessage.InvalidCommand)))
+      .orElseSucceed(state.copy(footerMessage = MenuFooterMessage.InvalidCommand))
 
   def render(state: State.Menu): UIO[String] =
     for {
@@ -47,5 +47,5 @@ final case class MenuModeLive(menuCommandParser: MenuCommandParser, menuView: Me
     } yield List(header, content, footer).mkString("\n\n")
 }
 object MenuModeLive {
-  val layer: URLayer[Has[MenuCommandParser] with Has[MenuView], Has[MenuMode]] = (MenuModeLive(_, _)).toLayer
+  val layer: URLayer[MenuCommandParser with MenuView, MenuMode] = ZLayer.fromFunction(MenuModeLive(_, _))
 }

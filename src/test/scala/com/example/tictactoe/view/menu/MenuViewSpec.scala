@@ -4,45 +4,50 @@ import com.example.tictactoe.domain.MenuFooterMessage
 import zio.test.Assertion._
 import zio.test._
 
-object MenuViewSpec extends DefaultRunnableSpec {
+object MenuViewSpec extends ZIOSpecDefault {
   def spec =
     suite("MenuView")(
       suite("header")(
         test("returns ascii art TicTacToe") {
-          val result = MenuView.header
-          assertM(result)(equalTo(asciiArtTicTacToe))
+          for {
+            result <- MenuView.header
+          } yield assertTrue(result == asciiArtTicTacToe)
         }
       ),
       suite("content returns list of commands")(
         test("including resume if suspended") {
-          val result = MenuView.content(true)
-          assertM(result)(equalTo(suspendedCommands))
+          for {
+            result <- MenuView.content(true)
+          } yield assertTrue(result == suspendedCommands)
         },
         test("excluding resume if not suspended") {
-          val result = MenuView.content(false)
-          assertM(result)(equalTo(notSuspendedCommands))
+          for {
+            result <- MenuView.content(false)
+          } yield assertTrue(result == notSuspendedCommands)
         }
       ),
       suite("footer renders Message")(
         test("Empty") {
-          val result = MenuView.footer(MenuFooterMessage.Empty)
-          assertM(result)(equalTo(emptyMessage))
+          for {
+            result <- MenuView.footer(MenuFooterMessage.Empty)
+          } yield assertTrue(result == emptyMessage)
         },
         test("InvalidCommand") {
-          val result = MenuView.footer(MenuFooterMessage.InvalidCommand)
-          assertM(result)(equalTo(invalidCommandMessage))
+          for {
+            result <- MenuView.footer(MenuFooterMessage.InvalidCommand)
+          } yield assertTrue(result == invalidCommandMessage)
         }
       )
-    ).provideCustomLayer(MenuViewLive.layer)
+    ).provideLayer(MenuViewLive.layer)
 
   private val asciiArtTicTacToe =
     """
-      | _____   __                             _______     ______          ______         
-      |/__  /  / /   ____ ___  _____  _____   /_  __(_)___/_  __/___ _____/_  __/___  ___ 
+      | _____   __                             _______     ______          ______
+      |/__  /  / /   ____ ___  _____  _____   /_  __(_)___/_  __/___ _____/_  __/___  ___
       |  / /  / /   / __ `/ / / / _ \/ ___/    / / / / ___// / / __ `/ ___// / / __ \/ _ \
       | / /__/ /___/ /_/ / /_/ /  __/ /       / / / / /__ / / / /_/ / /__ / / / /_/ /  __/
-      |/____/_____/\__,_/\__, /\___/_/       /_/ /_/\___//_/  \__,_/\___//_/  \____/\___/ 
-      |                 /____/                                                            
+      |/____/_____/\__,_/\__, /\___/_/       /_/ /_/\___//_/  \__,_/\___//_/  \____/\___/
+      |                 /____/
       |""".stripMargin
 
   private val suspendedCommands =

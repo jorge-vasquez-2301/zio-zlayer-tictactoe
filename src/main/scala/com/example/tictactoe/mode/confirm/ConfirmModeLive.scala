@@ -14,7 +14,7 @@ final case class ConfirmModeLive(confirmCommandParser: ConfirmCommandParser, con
         case ConfirmCommand.Yes => state.confirmed
         case ConfirmCommand.No  => state.declined
       }
-      .orElse(ZIO.succeed(state.copy(footerMessage = ConfirmFooterMessage.InvalidCommand)))
+      .orElseSucceed(state.copy(footerMessage = ConfirmFooterMessage.InvalidCommand))
   def render(state: State.Confirm): UIO[String] =
     for {
       header  <- confirmView.header(state.action)
@@ -23,6 +23,6 @@ final case class ConfirmModeLive(confirmCommandParser: ConfirmCommandParser, con
     } yield List(header, content, footer).mkString("\n\n")
 }
 object ConfirmModeLive {
-  val layer: URLayer[Has[ConfirmCommandParser] with Has[ConfirmView], Has[ConfirmMode]] =
-    (ConfirmModeLive(_, _)).toLayer
+  val layer: URLayer[ConfirmCommandParser with ConfirmView, ConfirmMode] =
+    ZLayer.fromFunction(ConfirmModeLive(_, _))
 }

@@ -3,7 +3,7 @@ import com.example.tictactoe.domain.{ ConfirmAction, ConfirmFooterMessage }
 import zio._
 
 final case class ConfirmViewLive() extends ConfirmView {
-  def header(action: ConfirmAction): UIO[String] = UIO.succeed(action).map {
+  def header(action: ConfirmAction): UIO[String] = ZIO.succeed(action).map {
     case ConfirmAction.NewGame =>
       """[New game]
         |
@@ -15,17 +15,17 @@ final case class ConfirmViewLive() extends ConfirmView {
   }
 
   val content: UIO[String] =
-    UIO.succeed(
+    ZIO.succeed(
       """Are you sure?
         |<yes> / <no>""".stripMargin
     )
 
   def footer(message: ConfirmFooterMessage): UIO[String] =
-    UIO.succeed(message) map {
+    ZIO.succeed(message) map {
       case ConfirmFooterMessage.Empty          => ""
       case ConfirmFooterMessage.InvalidCommand => "Invalid command. Try again."
     }
 }
 object ConfirmViewLive {
-  val layer: ULayer[Has[ConfirmView]] = (ConfirmViewLive.apply _).toLayer
+  val layer: ULayer[ConfirmView] = ZLayer.succeed(ConfirmViewLive())
 }

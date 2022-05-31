@@ -12,5 +12,5 @@ final case class ConfirmCommandParserLive() extends ConfirmCommandParser {
     }
 }
 object ConfirmCommandParserLive {
-  val layer: ULayer[Has[ConfirmCommandParser]] = (ConfirmCommandParserLive.apply _).toLayer
+  val layer: ULayer[ConfirmCommandParser] = ZLayer.succeed(ConfirmCommandParserLive())
 }

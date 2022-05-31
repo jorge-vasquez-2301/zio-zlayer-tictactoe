@@ -5,22 +5,24 @@ import com.example.tictactoe.domain._
 import com.example.tictactoe.mocks.{ ControllerMock, TerminalMock }
 import com.example.tictactoe.terminal.Terminal
 import zio._
-import zio.test.Assertion._
+import zio.mock._
 import zio.test._
-import zio.test.mock.Expectation._
 
-object RunLoopSpec extends DefaultRunnableSpec {
+object RunLoopSpec extends ZIOSpecDefault {
   def spec = suite("RunLoop")(
     suite("step")(
       test("displays current state and transforms it based on user input") {
-        val controllerMock: ULayer[Has[Controller]] =
-          ControllerMock.Render(equalTo(currentState), value(renderedFrame)) ++
-            ControllerMock.Process(equalTo(userInput -> currentState), value(nextState))
-        val terminalMock: ULayer[Has[Terminal]] =
-          TerminalMock.Display(equalTo(renderedFrame), unit) ++ TerminalMock.GetUserInput(value(userInput))
+        val controllerMock: ULayer[Controller] =
+          ControllerMock.Render(Assertion.equalTo(currentState), Expectation.value(renderedFrame)) ++
+            ControllerMock.Process(Assertion.equalTo(userInput -> currentState), Expectation.value(Some(nextState)))
+        val terminalMock: ULayer[Terminal] =
+          TerminalMock.Display(Assertion.equalTo(renderedFrame), Expectation.unit) ++ TerminalMock.GetUserInput(
+            Expectation.value(userInput)
+          )
 
-        val result = RunLoop.step(currentState).either.inject(controllerMock, terminalMock, RunLoopLive.layer)
-        assertM(result)(isRight(equalTo(nextState)))
+        for {
+          result <- RunLoop.step(currentState).provide(controllerMock, terminalMock, RunLoopLive.layer).some
+        } yield assertTrue(result == nextState)
       }
     )
   )

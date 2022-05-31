@@ -5,11 +5,10 @@ import com.example.tictactoe.mocks._
 import com.example.tictactoe.parser.confirm.ConfirmCommandParser
 import com.example.tictactoe.view.confirm.ConfirmView
 import zio._
-import zio.test.Assertion._
+import zio.mock._
 import zio.test._
-import zio.test.mock.Expectation._
 
-object ConfirmModeSpec extends DefaultRunnableSpec {
+object ConfirmModeSpec extends ZIOSpecDefault {
   def spec = suite("ConfirmMode")(
     suite("process")(
       test("yes returns confirmed state") {
@@ -24,15 +23,16 @@ object ConfirmModeSpec extends DefaultRunnableSpec {
     ),
     suite("render")(
       test("returns confirm frame") {
-        val confirmViewMock: ULayer[Has[ConfirmView]] =
-          ConfirmViewMock.Header(equalTo(ConfirmAction.NewGame), value("header")) ++
-            ConfirmViewMock.Content(value("content")) ++
-            ConfirmViewMock.Footer(equalTo(ConfirmFooterMessage.Empty), value("footer"))
+        val confirmViewMock: ULayer[ConfirmView] =
+          ConfirmViewMock.Header(Assertion.equalTo(ConfirmAction.NewGame), Expectation.value("header")) ++
+            ConfirmViewMock.Content(Expectation.value("content")) ++
+            ConfirmViewMock.Footer(Assertion.equalTo(ConfirmFooterMessage.Empty), Expectation.value("footer"))
 
-        val result = ConfirmMode
-          .render(currentState)
-          .inject(ConfirmCommandParserMock.empty, confirmViewMock, ConfirmModeLive.layer)
-        assertM(result)(equalTo(renderedFrame))
+        for {
+          result <- ConfirmMode
+                     .render(currentState)
+                     .provide(ConfirmCommandParserMock.empty, confirmViewMock, ConfirmModeLive.layer)
+        } yield assertTrue(result == renderedFrame)
       }
     )
   )
@@ -66,12 +66,14 @@ object ConfirmModeSpec extends DefaultRunnableSpec {
     state: State.Confirm,
     updatedState: State
   ): UIO[TestResult] = {
-    val confirmCommandParserMock: ULayer[Has[ConfirmCommandParser]] = optionCommand match {
-      case Some(command) => ConfirmCommandParserMock.Parse(equalTo(input), value(command))
-      case None          => ConfirmCommandParserMock.Parse(equalTo(input), failure(ParseError))
+    val confirmCommandParserMock: ULayer[ConfirmCommandParser] = optionCommand match {
+      case Some(command) => ConfirmCommandParserMock.Parse(Assertion.equalTo(input), Expectation.value(command))
+      case None          => ConfirmCommandParserMock.Parse(Assertion.equalTo(input), Expectation.failure(ParseError))
     }
-    val result =
-      ConfirmMode.process(input, state).inject(confirmCommandParserMock, ConfirmViewMock.empty, ConfirmModeLive.layer)
-    assertM(result)(equalTo(updatedState))
+    for {
+      result <- ConfirmMode
+                 .process(input, state)
+                 .provide(confirmCommandParserMock, ConfirmViewMock.empty, ConfirmModeLive.layer)
+    } yield assertTrue(result == updatedState)
   }
 }

@@ -17,21 +17,22 @@ import com.example.tictactoe.view.game.GameViewLive
 import com.example.tictactoe.view.menu.MenuViewLive
 import zio._
 
-object TicTacToe extends App {
+object TicTacToe extends ZIOAppDefault {
 
-  val program: URIO[Has[RunLoop], Unit] = {
-    def loop(state: State): URIO[Has[RunLoop], Unit] =
+  val program: URIO[RunLoop, Unit] = {
+    def loop(state: State): URIO[RunLoop, Unit] =
       RunLoop
         .step(state)
+        .some
         .flatMap(loop)
         .ignore
 
     loop(State.initial)
   }
 
-  def run(args: List[String]): ZIO[ZEnv, Nothing, ExitCode] =
+  val run =
     program
-      .injectCustom(
+      .provide(
         ControllerLive.layer,
         GameLogicLive.layer,
         ConfirmModeLive.layer,
@@ -47,5 +48,4 @@ object TicTacToe extends App {
         GameViewLive.layer,
         MenuViewLive.layer
       )
-      .exitCode
 }

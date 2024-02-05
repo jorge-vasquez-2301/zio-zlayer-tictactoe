@@ -7,6 +7,7 @@ val zioMockVersion   = "1.0.0-RC11"
 
 lazy val compileDependencies = Seq(
   "dev.zio"      %% "zio"                 % zioVersion,
+  "dev.zio"      %% "zio-config-magnolia" % zioConfigVersion,
   "dev.zio"      %% "zio-config-typesafe" % zioConfigVersion,
   "dev.zio"      %% "zio-macros"          % zioVersion,
   "org.tpolecat" %% "atto-core"           % attoVersion

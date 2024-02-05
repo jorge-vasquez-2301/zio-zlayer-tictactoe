@@ -1,6 +1,6 @@
 package com.example.tictactoe.config
 
-import zio._
+import zio.config.magnolia._
 
 // No need to define config as a service, just a normal case class
 // No need to obtain config from the environment, which means no need to use ZLayer
@@ -16,43 +16,16 @@ final case class AppConfig(
   ai: AppConfig.AI
 )
 object AppConfig {
-  val config =
-    (Controller.config.nested("controller") ++
-      View.config.nested("view") ++
-      AI.config.nested("ai")).map((AppConfig.apply _).tupled)
+  val config = deriveConfig[AppConfig] // Currently this does not support setting default values
 
   final case class Controller(shutdownMessage: String)
-  object Controller {
-    val config = Config.string("shutdownMessage").withDefault("Shutting down...").map(Controller(_))
-  }
 
   final case class View(confirm: View.Confirm, game: View.Game, menu: View.Menu)
   object View {
-    val config =
-      (Confirm.config.nested("confirm") ++
-        Game.config.nested("game") ++
-        Menu.config.nested("menu")).map((View.apply _).tupled)
-
     final case class Confirm(invalidCommandMessage: String)
-    object Confirm {
-      val config = Config.string("invalidCommandMessage").withDefault("Invalid command. Try again.").map(Confirm(_))
-    }
-
     final case class Game(invalidCommandMessage: String, fieldOccupiedMessage: String)
-    object Game {
-      val config =
-        (Config.string("invalidCommandMessage").withDefault("Invalid command. Try again.") ++
-          Config.string("fieldOccupiedMessage").withDefault("Field occupied. Try another.")).map((Game.apply _).tupled)
-    }
-
     final case class Menu(invalidCommandMessage: String)
-    object Menu {
-      val config = Config.string("invalidCommandMessage").withDefault("Invalid command. Try again.").map(Menu(_))
-    }
   }
 
   final case class AI(randomGenRepetitions: Int)
-  object AI {
-    val config = Config.int("randomGenRepetitions").map(AI(_))
-  }
 }

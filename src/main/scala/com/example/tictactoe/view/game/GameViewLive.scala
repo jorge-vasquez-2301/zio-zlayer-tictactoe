@@ -1,5 +1,6 @@
 package com.example.tictactoe.view.game
 
+import com.example.tictactoe.config.AppConfig
 import com.example.tictactoe.domain.Board.Field
 import com.example.tictactoe.domain.{ GameFooterMessage, GameResult, Piece, Player }
 import zio._
@@ -39,11 +40,17 @@ final case class GameViewLive() extends GameView {
         .mkString("\n═══╬═══╬═══\n")
     }
 
-  def footer(message: GameFooterMessage): UIO[String] = ZIO.succeed(message) map {
-    case GameFooterMessage.Empty          => ""
-    case GameFooterMessage.InvalidCommand => "Invalid command. Try again."
-    case GameFooterMessage.FieldOccupied  => "Field occupied. Try another."
-  }
+  def footer(message: GameFooterMessage): UIO[String] =
+    ZIO
+      .config(AppConfig.config.map(_.view.game))
+      .map { config =>
+        message match {
+          case GameFooterMessage.Empty          => ""
+          case GameFooterMessage.InvalidCommand => config.invalidCommandMessage
+          case GameFooterMessage.FieldOccupied  => config.fieldOccupiedMessage
+        }
+      }
+      .orDie
 }
 object GameViewLive {
   val layer: ULayer[GameView] = ZLayer.succeed(GameViewLive())

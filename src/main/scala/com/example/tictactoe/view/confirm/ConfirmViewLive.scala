@@ -1,4 +1,5 @@
 package com.example.tictactoe.view.confirm
+import com.example.tictactoe.config.AppConfig
 import com.example.tictactoe.domain.{ ConfirmAction, ConfirmFooterMessage }
 import zio._
 
@@ -21,10 +22,15 @@ final case class ConfirmViewLive() extends ConfirmView {
     )
 
   def footer(message: ConfirmFooterMessage): UIO[String] =
-    ZIO.succeed(message) map {
-      case ConfirmFooterMessage.Empty          => ""
-      case ConfirmFooterMessage.InvalidCommand => "Invalid command. Try again."
-    }
+    ZIO
+      .config(AppConfig.config.map(_.view.confirm))
+      .map { config =>
+        message match {
+          case ConfirmFooterMessage.Empty          => ""
+          case ConfirmFooterMessage.InvalidCommand => config.invalidCommandMessage
+        }
+      }
+      .orDie
 }
 object ConfirmViewLive {
   val layer: ULayer[ConfirmView] = ZLayer.succeed(ConfirmViewLive())

@@ -1,5 +1,6 @@
 package com.example.tictactoe.controller
 
+import com.example.tictactoe.config.AppConfig
 import com.example.tictactoe.domain.State
 import com.example.tictactoe.mode.confirm.ConfirmMode
 import com.example.tictactoe.mode.game.GameMode
@@ -20,7 +21,8 @@ final case class ControllerLive(confirmMode: ConfirmMode, gameMode: GameMode, me
       case s: State.Confirm => confirmMode.render(s)
       case s: State.Game    => gameMode.render(s)
       case s: State.Menu    => menuMode.render(s)
-      case State.Shutdown   => ZIO.succeed("Shutting down...")
+      case State.Shutdown =>
+        ZIO.config(AppConfig.config.map(_.controller)).flatMap(config => ZIO.succeed(config.shutdownMessage)).orDie
     }
 }
 object ControllerLive {

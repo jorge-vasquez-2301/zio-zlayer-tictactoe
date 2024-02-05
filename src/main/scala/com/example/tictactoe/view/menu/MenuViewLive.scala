@@ -1,5 +1,6 @@
 package com.example.tictactoe.view.menu
 
+import com.example.tictactoe.config.AppConfig
 import com.example.tictactoe.domain.MenuFooterMessage
 import zio._
 
@@ -25,10 +26,15 @@ final case class MenuViewLive() extends MenuView {
         .mkString("\n")
     }
   def footer(message: MenuFooterMessage): UIO[String] =
-    ZIO.succeed(message) map {
-      case MenuFooterMessage.Empty          => ""
-      case MenuFooterMessage.InvalidCommand => "Invalid command. Try again."
-    }
+    ZIO
+      .config(AppConfig.config.map(_.view.menu))
+      .map { config =>
+        message match {
+          case MenuFooterMessage.Empty          => ""
+          case MenuFooterMessage.InvalidCommand => config.invalidCommandMessage
+        }
+      }
+      .orDie
 }
 object MenuViewLive {
   val layer: ULayer[MenuView] = ZLayer.succeed(MenuViewLive())

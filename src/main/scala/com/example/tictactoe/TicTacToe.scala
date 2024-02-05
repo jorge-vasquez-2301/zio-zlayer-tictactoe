@@ -16,8 +16,12 @@ import com.example.tictactoe.view.confirm.ConfirmViewLive
 import com.example.tictactoe.view.game.GameViewLive
 import com.example.tictactoe.view.menu.MenuViewLive
 import zio._
+import zio.config.typesafe._
 
 object TicTacToe extends ZIOAppDefault {
+
+  override val bootstrap =
+    Runtime.setConfigProvider(ConfigProvider.envProvider.snakeCase orElse ConfigProvider.fromResourcePath())
 
   val program: URIO[RunLoop, Unit] = {
     def loop(state: State): URIO[RunLoop, Unit] =

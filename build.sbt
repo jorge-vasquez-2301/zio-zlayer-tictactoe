@@ -1,12 +1,11 @@
 val scalaVer = "2.13.10"
 
 val attoVersion    = "0.7.2"
-val zioVersion     = "2.0.12"
-val zioMockVersion = "1.0.0-RC11"
+val zioVersion     = "2.1.24"
+val zioMockVersion = "1.0.0-RC12"
 
 lazy val compileDependencies = Seq(
   "dev.zio"      %% "zio"        % zioVersion,
-  "dev.zio"      %% "zio-macros" % zioVersion,
   "org.tpolecat" %% "atto-core"  % attoVersion
 ) map (_ % Compile)
 

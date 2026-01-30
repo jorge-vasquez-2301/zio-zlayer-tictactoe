@@ -12,44 +12,44 @@ object ControllerSpec extends ZIOSpecDefault {
       suite("to process user input")(
         test("State.Confirm delegates to ConfirmMode") {
           for {
-            result <- Controller.process(userInput, confirmState).some.provideLayer(env)
+            result <- Controller.process(userInput, confirmState).some.provide(env)
           } yield assertTrue(result == menuState)
         },
         test("State.Game delegates to GameMode") {
           for {
-            result <- Controller.process(userInput, gameState).some.provideLayer(env)
+            result <- Controller.process(userInput, gameState).some.provide(env)
           } yield assertTrue(result == menuState)
         },
         test("State.Menu delegates to MenuMode") {
           for {
-            result <- Controller.process(userInput, menuState).some.provideLayer(env)
+            result <- Controller.process(userInput, menuState).some.provide(env)
           } yield assertTrue(result == confirmState)
         },
         test("State.Shutdown fails with Unit") {
           for {
-            result <- Controller.process(userInput, shutdownState).provideLayer(dummyEnv)
+            result <- Controller.process(userInput, shutdownState).provide(dummyEnv)
           } yield assertTrue(result.isEmpty)
         }
       ),
       suite("to render")(
         test("State.Confirm delegates to ConfirmMode") {
           for {
-            result <- Controller.render(confirmState).provideLayer(env)
+            result <- Controller.render(confirmState).provide(env)
           } yield assertTrue(result == renderedFrame)
         },
         test("State.Game delegates to GameMode") {
           for {
-            result <- Controller.render(gameState).provideLayer(env)
+            result <- Controller.render(gameState).provide(env)
           } yield assertTrue(result == renderedFrame)
         },
         test("State.Menu delegates to MenuMode") {
           for {
-            result <- Controller.render(menuState).provideLayer(env)
+            result <- Controller.render(menuState).provide(env)
           } yield assertTrue(result == renderedFrame)
         },
         test("State.Shutdown returns shutdown message") {
           for {
-            result <- Controller.render(shutdownState).provideLayer(dummyEnv)
+            result <- Controller.render(shutdownState).provide(dummyEnv)
           } yield assertTrue(result == shutdownMessage)
         }
       )

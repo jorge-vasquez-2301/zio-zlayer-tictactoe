@@ -18,10 +18,10 @@ object GameCommandParserSpec extends ZIOSpecDefault {
           val results = ZIO.foreach(1 to 9) { n =>
             for {
               result        <- GameCommandParser.parse(s"$n").either.right
-              expectedField <- ZIO.from(Field.make(n))
+              expectedField <- ZIO.fromOption(Field.make(n))
             } yield assertTrue(result == GameCommand.Put(expectedField))
           }
-          results.flatMap(results => ZIO.from(results.reduceOption(_ && _)))
+          results.flatMap(results => ZIO.fromOption(results.reduceOption(_ && _)))
         },
         test("invalid command returns error") {
           check(invalidCommandsGen) { input =>
@@ -31,7 +31,7 @@ object GameCommandParserSpec extends ZIOSpecDefault {
           }
         }
       )
-    ).provideLayer(GameCommandParserLive.layer)
+    ).provide(GameCommandParserLive.layer)
 
   private val validCommands      = List(1 to 9)
   private val invalidCommandsGen = Gen.string.filter(!validCommands.contains(_))

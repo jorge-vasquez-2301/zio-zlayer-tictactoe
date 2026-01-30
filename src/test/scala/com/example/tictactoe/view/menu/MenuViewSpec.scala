@@ -38,7 +38,7 @@ object MenuViewSpec extends ZIOSpecDefault {
           } yield assertTrue(result == invalidCommandMessage)
         }
       )
-    ).provideLayer(MenuViewLive.layer)
+    ).provide(MenuViewLive.layer)
 
   private val asciiArtTicTacToe =
     """

@@ -36,7 +36,7 @@ object GameViewSpec extends ZIOSpecDefault {
           } yield assertTrue(result == invalidCommandMessage)
         }
       )
-    ).provideLayer(GameViewLive.layer)
+    ).provide(GameViewLive.layer)
 
   private val emptyBoard = Map.empty[Field, Piece]
 

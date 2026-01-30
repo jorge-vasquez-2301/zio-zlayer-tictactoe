@@ -28,7 +28,7 @@ object MenuCommandParserSpec extends ZIOSpecDefault {
           } yield assertTrue(result == ParseError)
         }
       }
-    ).provideLayer(MenuCommandParserLive.layer)
+    ).provide(MenuCommandParserLive.layer)
   )
 
   private val validCommands      = List("new game", "resume", "quit")

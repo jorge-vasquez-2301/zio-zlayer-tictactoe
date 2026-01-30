@@ -26,7 +26,7 @@ object ConfirmCommandParserSpec extends ZIOSpecDefault {
           }
         }
       )
-    ).provideLayer(ConfirmCommandParserLive.layer)
+    ).provide(ConfirmCommandParserLive.layer)
 
   private val validCommands      = List("yes", "no")
   private val invalidCommandsGen = Gen.string.filter(!validCommands.contains(_))

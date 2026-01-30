@@ -20,5 +20,5 @@ object TerminalSpec extends ZIOSpecDefault {
           } yield assertTrue(result == ())
         }
       }
-    ).provideLayer(TerminalLive.layer) @@ TestAspect.silent
+    ).provide(TerminalLive.layer) @@ TestAspect.silent
 }

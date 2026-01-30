@@ -38,7 +38,7 @@ object ConfirmViewSpec extends ZIOSpecDefault {
           } yield assertTrue(result == invalidCommandMessage)
         }
       )
-    ).provideLayer(ConfirmViewLive.layer)
+    ).provide(ConfirmViewLive.layer)
 
   private val newGameDescription =
     """[New game]

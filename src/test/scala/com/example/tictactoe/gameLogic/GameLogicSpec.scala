@@ -78,7 +78,7 @@ object GameLogicSpec extends ZIOSpecDefault {
           } yield assertTrue(result == Piece.Cross)
         }
       )
-    ).provideLayer(GameLogicLive.layer)
+    ).provide(GameLogicLive.layer)
 
   private val board = Map[Field, Piece](
     Field.North -> Piece.Cross,
